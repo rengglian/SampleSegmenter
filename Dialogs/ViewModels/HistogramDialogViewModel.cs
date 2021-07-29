@@ -12,7 +12,7 @@ namespace SampleSegmenter.Dialogs.ViewModels
 {
     class HistogramDialogViewModel : BindableBase, IDialogAware
     {
-        private string _title = "Histogramm";
+        private string _title;
         public string Title
         {
             get { return _title; }
@@ -40,8 +40,17 @@ namespace SampleSegmenter.Dialogs.ViewModels
             set { SetProperty(ref _histogramHeight, value); }
         }
 
-        public DelegateCommand CloseDialogCommand { get; }
+        private string _contoursInfo;
+        public string ContoursInfo
+        {
+            get { return _contoursInfo; }
+            set { SetProperty(ref _contoursInfo, value); }
+        }
 
+        public DelegateCommand CloseDialogCommand { get; }
+        public DelegateCommand ExportCommand { get; }
+
+        private string fileName;
 
         private List<DataPoint> _histogramValues = new();
 
@@ -55,6 +64,7 @@ namespace SampleSegmenter.Dialogs.ViewModels
             PlotModelHisto = new();
 
             CloseDialogCommand = new DelegateCommand(CloseDialogCommandHandler);
+            ExportCommand = new DelegateCommand(ExportCommandHandler);
         }
 
         private void CloseDialogCommandHandler()
@@ -75,10 +85,22 @@ namespace SampleSegmenter.Dialogs.ViewModels
         public void OnDialogOpened(IDialogParameters parameters)
         {
             var contoursInfo = parameters.GetValue<List<ContourInfo>>("contoursInfo");
+            fileName = parameters.GetValue<string>("fileName");
+
+            Title = @"Histogram of " + fileName;
 
             _histogramValues = contoursInfo.GroupBy(c => c.Y / 100).OrderBy(g => g.Key).Select(groups => new DataPoint( groups.Key * 100, groups.Count()) ).ToList();
 
-            PlotModelHisto = PlotModelHelper.ColumnSeries(_histogramValues);
+            PlotModelHisto = PlotModelHelper.ColumnSeries(_histogramValues, fileName);
+
+            string header = "X\tY\tArea\tCircumference\n";
+            string result = string.Join(Environment.NewLine, contoursInfo);
+            ContoursInfo = header + result;
+        }
+
+        private void ExportCommandHandler()
+        {
+            PlotModelHelper.ExportData(PlotModelHisto, HistogramWidth, HistogramHeight, fileName, ContoursInfo);
         }
     }
 }

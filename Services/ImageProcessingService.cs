@@ -1,17 +1,22 @@
 ﻿using OpenCvSharp;
+using Prism.Mvvm;
+using SampleSegmenter.Converters;
+using SampleSegmenter.Enums;
 using SampleSegmenter.Models;
 using SampleSegmenter.Options;
 using System;
 using System.Collections.Generic;
+using System.Windows.Media;
 
 namespace SampleSegmenter.Services
 {
-    public class ImageProcessingService
+    public class ImageProcessingService : BindableBase
     {
         private Mat _orig;
         private Mat _denoised;
         private Mat _grayscaled;
         private Mat _binarized;
+        private Mat _dilated;
         private Mat _result;
 
         private readonly List<ContourInfo> _contoursInfo;
@@ -20,47 +25,56 @@ namespace SampleSegmenter.Services
 
         private DenoiseOptions _denoiseOptions;
         private ThresholdOptions _thresholdOptions;
+        private DilateOptions _dilateOptions;
         private ContoursOptions _contoursOptions;
+
+        private ImageSource _image;
+        public ImageSource Image
+        {
+            get { return _image; }
+            set { SetProperty(ref _image, value); }
+        }
+
+                private ImageProcessingSteps _selectedImageProcessingStep = ImageProcessingSteps.Result;
+        public ImageProcessingSteps SelectedImageProcessingStep
+        {
+            get { return _selectedImageProcessingStep; }
+            set
+            {
+                SetProperty(ref _selectedImageProcessingStep, value);
+                UpdateImage(SelectedImageProcessingStep);
+            }
+        }
+
+        private string _information;
+        public string Information
+        {
+            get { return _information; }
+            set { SetProperty(ref _information, value); }
+        }
+
+        private bool _isImageLoaded;
+        public bool IsImageLoaded
+        {
+            get { return _isImageLoaded; }
+            set { SetProperty(ref _isImageLoaded, value); }
+        }
 
         public ImageProcessingService()
         {
             _denoiseOptions = new();
             _enableEqualized = true;
             _thresholdOptions = new();
+            _dilateOptions = new();
             _contoursOptions = new();
             _contoursInfo = new();
         }
 
         public void SetOrigMat(Mat orig)
         {
+            Information = "Set Original Image";
             _orig = orig.Clone();
             Update();
-        }
-
-        public Mat GetDenoisedMat()
-        {
-            return _denoised.Clone();
-        }
-
-        public Mat GetGrayScaledMat()
-        {
-            return _grayscaled.Clone();
-        }
-        public Mat GetBinarizedMat()
-        {
-            return _binarized.Clone();
-        }
-
-        public Mat GetResultMat()
-        {
-            return _result.Clone();
-        }
-
-        public string GetContoursInfoText()
-        {
-            string header = "X\tY\tArea\tCircumference\n";
-            string result = string.Join(Environment.NewLine, _contoursInfo);
-            return header + result;
         }
 
         public List<ContourInfo> GetContoursInfo()
@@ -86,28 +100,83 @@ namespace SampleSegmenter.Services
             Update();
         }
 
-        public void SetMinimumArea(ContoursOptions options)
+        public void SetDilateOptions(DilateOptions options)
+        {
+            _dilateOptions = options;
+            Update();
+        }
+
+        public void SetContoursOptions(ContoursOptions options)
         {
             _contoursOptions = options;
             Update();
         }
+
+
+        private void UpdateImage(ImageProcessingSteps imageProcessingSteps)
+        {
+            switch (imageProcessingSteps)
+            {
+                case ImageProcessingSteps.Orignal:
+                    {
+                        Image = ImageConverter.Convert(_orig.Clone());
+                        break;
+                    }
+                case ImageProcessingSteps.Denoised:
+                    {
+                        Image = ImageConverter.Convert(_denoised.Clone());
+                        break;
+                    }
+                case ImageProcessingSteps.Grayscaled:
+                    {
+                        Image = ImageConverter.Convert(_grayscaled.Clone());
+                        break;
+                    }
+                case ImageProcessingSteps.Binarized:
+                    {
+                        Image = ImageConverter.Convert(_binarized.Clone());
+                        break;
+                    }
+                case ImageProcessingSteps.Dilated:
+                    {
+                        Image = ImageConverter.Convert(_dilated.Clone());
+                        break;
+                    }
+                case ImageProcessingSteps.Result:
+                    {
+                        Image = ImageConverter.Convert(_result.Clone());
+                        break;
+                    }
+            }
+        }
+
 
         private void Update()
         {
             Denoise();
             Grayscale();
             Threshold();
+            Dilate();
             Contours();
+            UpdateImage(SelectedImageProcessingStep);
         }
 
         private void Denoise()
         {
+            Information = "Denoise Image";
             _denoised = _orig.Clone();
-            Cv2.FastNlMeansDenoisingColored(_orig, _denoised, _denoiseOptions.H, _denoiseOptions.HColor, _denoiseOptions.TemplateWindowSize, _denoiseOptions.TemplateWindowSize);
+            Cv2.FastNlMeansDenoisingColored(
+                _orig, 
+                _denoised, 
+                _denoiseOptions.H, 
+                _denoiseOptions.HColor, 
+                _denoiseOptions.TemplateWindowSize, 
+                _denoiseOptions.TemplateWindowSize);
         }
 
         private void Grayscale()
         {
+            Information = "Grayscale Image";
             _grayscaled = _denoised.Clone();
             Cv2.CvtColor(_denoised, _grayscaled, ColorConversionCodes.BGR2GRAY);
             if (_enableEqualized) Cv2.EqualizeHist(_grayscaled, _grayscaled);
@@ -115,6 +184,8 @@ namespace SampleSegmenter.Services
 
         private void Threshold()
         {
+            Information = "Binarize Image";
+
             ThresholdTypes thresholdTypes;
             if (_thresholdOptions.UseOtsu)
             {
@@ -134,10 +205,28 @@ namespace SampleSegmenter.Services
             Cv2.Rectangle(_binarized, p1, p2, new Scalar(255, 255, 255), thickness);
 
         }
+
+        private void Dilate()
+        {
+            Information = "Dilate Image";
+            _dilated = _binarized.Clone();
+
+            if (_dilateOptions.IsEnabled)
+            {
+                var struct_element = Cv2.GetStructuringElement(
+                    MorphShapes.Cross,
+                    new Size(2 * _dilateOptions.Size + 1, 2 * _dilateOptions.Size + 1),
+                    new Point(_dilateOptions.Size, _dilateOptions.Size));
+
+                Cv2.Dilate(_binarized, _dilated, struct_element, iterations: _dilateOptions.Iterations);
+            }
+        }
+
         private void Contours()
         {
+            Information = "Find Contours";
             _result = _orig.Clone();
-            Cv2.FindContours(_binarized, out Point[][] contours, out HierarchyIndex[] hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
+            Cv2.FindContours(_dilated, out Point[][] contours, out HierarchyIndex[] hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
 
             var rand = new Random();
             var thickness = _contoursOptions.FillContours ? -1 : 2;
@@ -146,9 +235,15 @@ namespace SampleSegmenter.Services
 
             foreach (HierarchyIndex hi in hierarchyIndexes)
             {
+                Information = @"Analyse Contour " + hi.Next;
                 if(hi.Next != -1 && hi.Parent == 0)
                 {
                     var contour = contours[hi.Next];
+                    if(_contoursOptions.ConvexHull)
+                    {
+                        contour = Cv2.ConvexHull(contour, true);
+                        contours[hi.Next] = contour;
+                    }
                     var area = Cv2.ContourArea(contour);
                     if(area > _contoursOptions.MinimumArea)
                     {
@@ -178,6 +273,8 @@ namespace SampleSegmenter.Services
                     }
                 }
             }
+            IsImageLoaded = true;
+            Information = "Done";
         }
     }
 }

@@ -7,11 +7,12 @@ namespace SampleSegmenter.Extensions
 {
     public static class IDialogServiceExtensions
     {
-        public static void ShowHistogramDialog(this IDialogService dialogService, List<ContourInfo> contoursInfo, Action<IDialogResult> callback)
+        public static void ShowHistogramDialog(this IDialogService dialogService, List<ContourInfo> contoursInfo, string fileName, Action<IDialogResult> callback)
         {
             var p = new DialogParameters
             {
-                { "contoursInfo", contoursInfo }
+                { "contoursInfo", contoursInfo },
+                { "fileName", fileName }
             };
 
             dialogService.ShowDialog("HistogramDialogView", p, callback);

@@ -11,6 +11,13 @@ namespace SampleSegmenter.Options
             set { SetProperty(ref _fillContours, value); }
         }
 
+        private bool _convexHull;
+        public bool ConvexHull
+        {
+            get { return _convexHull; }
+            set { SetProperty(ref _convexHull, value); }
+        }
+
         private double _minimumArea = 1000.0;
         public double MinimumArea
         {

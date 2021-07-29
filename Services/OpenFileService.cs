@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using SampleSegmenter.Interfaces;
+using System.IO;
 
 namespace SampleSegmenter.Services
 {
@@ -26,6 +27,11 @@ namespace SampleSegmenter.Services
         public string[] FileNames
         {
             get { return _selectedFileNames; }
+        }
+
+        public string FileName
+        {
+            get { return Path.GetFileNameWithoutExtension(_selectedFileNames[0]); }
         }
     }
 }

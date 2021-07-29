@@ -51,6 +51,7 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
         <GroupBox Grid.Row="0" Grid.Column="0" Header="Input">
@@ -69,6 +70,7 @@
         
         <GroupBox Grid.Row="1" Grid.Column="0">
             <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
                 <ComboBox Grid.Row="0" Grid.Column="1" 
                           VerticalAlignment="Top" 
                           Text="Select Image" 
@@ -76,12 +78,13 @@
                           IsReadOnly="true" 
                           Width="100" 
                           ItemsSource="{Binding Source={extensions:EnumBindingSource {x:Type enums:ImageProcessingSteps}}}"
-                          SelectedItem="{Binding SelectedImageProcessingStep, Mode=TwoWay}"
-                          IsEnabled="{Binding IsImageLoaded}"/>
+                          SelectedItem="{Binding ImageProcessingService.SelectedImageProcessingStep, Mode=TwoWay}"
+                          IsEnabled="{Binding ImageProcessingService.IsImageLoaded}"/>
+                    <TextBlock Text="{Binding ImageProcessingService.Information}"/>
+                </StackPanel>
             </GroupBox.Header>
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -89,12 +92,11 @@
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
 
-                <Viewbox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="5">
-                    <Image Stretch="None"  Source="{Binding Image}"/>
+                <Viewbox Grid.Row="0" Grid.Column="0" Margin="5">
+                    <Image Stretch="None"  Source="{Binding ImageProcessingService.Image}"/>
                 </Viewbox>
 
-                <TextBox Grid.Row="0" Grid.Column="1" IsReadOnly="True" VerticalAlignment="Stretch" Text="{Binding ContoursInfo}"/>
-                <Button Grid.Row="1" Grid.Column="1" Content="Show Histogram" Command="{Binding ShowHistogramCommand}"/>
+                <Button Grid.Row="1" Grid.Column="0" Content="Show Histogram" Command="{Binding ShowHistogramCommand}"/>
 
             </Grid>
         </GroupBox>
@@ -151,18 +153,39 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="5" Grid.Column="0" Header="Contours">
+        <GroupBox Grid.Row="5" Grid.Column="0" Header="Dilate Options">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Kernel Size:"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DilateOptions.Size}"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Iterations:"/>
+                <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding DilateOptions.Iterations}"/>
+                <CheckBox Grid.Row="0" Grid.Column="4" Content="Enable Dilate" IsChecked="{Binding DilateOptions.IsEnabled}"/>
+                <Button Grid.Row="0" Grid.Column="5" Command="{Binding SetDilateOptionsCommand}" Content="Set"/>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="6" Grid.Column="0" Header="Contours">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Minimum Area:"/>
                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ContoursOptions.MinimumArea}"/>
                 <CheckBox Grid.Row="0" Grid.Column="2" Content="Fill Contours" IsChecked="{Binding ContoursOptions.FillContours}"/>
-                <Button Grid.Row="0" Grid.Column="3" Command="{Binding SetMinimumAreaCommand}" Content="Set"/>
+                <CheckBox Grid.Row="0" Grid.Column="3" Content="Convex Hull" IsChecked="{Binding ContoursOptions.ConvexHull}"/>
+                <Button Grid.Row="0" Grid.Column="4" Command="{Binding SetContourOptionsCommand}" Content="Set"/>
             </Grid>
         </GroupBox>
 

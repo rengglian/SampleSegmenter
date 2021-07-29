@@ -11,7 +11,8 @@
              d:DesignHeight="650" d:DesignWidth="800">
     <Grid Margin="15">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -19,6 +20,11 @@
         </Grid.RowDefinitions>
 
         <oxy:PlotView Grid.Row="0" Grid.Column="0" Name="HistoPlot" Model="{Binding PlotModelHisto}" Width="{Binding HistogramWidth}" Height="{Binding HistogramHeight}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <Button Grid.Row="1" Grid.Column="0" Margin="5" Content="Close" Command="{Binding CloseDialogCommand}"/>
+        <TextBox Grid.Row="0" Grid.Column="1" IsReadOnly="True" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" Height="{Binding HistogramHeight}" Text="{Binding ContoursInfo}"/>
+
+        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <Button HorizontalAlignment="Center" Margin="5" Content="Close" Command="{Binding CloseDialogCommand}"/>
+            <Button HorizontalAlignment="Center" Margin="5" Content="Export" Command="{Binding ExportCommand}"/>
+        </StackPanel>
     </Grid>
 </UserControl>

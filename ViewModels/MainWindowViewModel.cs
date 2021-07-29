@@ -16,7 +16,7 @@ namespace SampleSegmenter.ViewModels
     {
         private readonly IOpenFileService _openFileService;
         private readonly IDialogService _dialogService;
-        private readonly ImageProcessingService _imageProcessingService;
+        public ImageProcessingService ImageProcessingService { get; set; }
 
         private ImageFromFile _imageFromFile;
 
@@ -37,20 +37,7 @@ namespace SampleSegmenter.ViewModels
         public DenoiseOptions DenoiseOptions { get; set; } = new();
         public ThresholdOptions ThresholdOptions { get; set; } = new();
         public ContoursOptions ContoursOptions { get; set; } = new();
-        
-        private string _contoursInfo;
-        public string ContoursInfo
-        {
-            get { return _contoursInfo; }
-            set { SetProperty(ref _contoursInfo, value); }
-        }
-
-        private bool _isImageLoaded;
-        public bool IsImageLoaded
-        {
-            get { return _isImageLoaded; }
-            set { SetProperty(ref _isImageLoaded, value); }
-        }
+        public DilateOptions DilateOptions { get; set; } = new();
 
         private bool isEqualizerEnabled = true;
         public bool IsEqualizerEnabled
@@ -58,8 +45,7 @@ namespace SampleSegmenter.ViewModels
             get { return isEqualizerEnabled; }
             set { 
                 SetProperty(ref isEqualizerEnabled, value);
-                _imageProcessingService.SetEnableEqualized(IsEqualizerEnabled);
-                UpdateImage(SelectedImageProcessingStep);
+                ImageProcessingService.SetEnableEqualized(IsEqualizerEnabled);
             }
         }
 
@@ -70,7 +56,6 @@ namespace SampleSegmenter.ViewModels
             set
             {
                 SetProperty(ref _selectedImageProcessingStep, value);
-                UpdateImage(SelectedImageProcessingStep);
             }
         }
         
@@ -78,7 +63,8 @@ namespace SampleSegmenter.ViewModels
         public DelegateCommand OpenImageCommand { get; }
         public DelegateCommand SetDenoiseOptionsCommand { get; }
         public DelegateCommand SetThresholdOptionsCommand { get; }
-        public DelegateCommand SetMinimumAreaCommand { get; }
+        public DelegateCommand SetDilateOptionsCommand { get; }
+        public DelegateCommand SetContourOptionsCommand { get; }
         public DelegateCommand ShowHistogramCommand { get; }
 
         public MainWindowViewModel(IOpenFileService openFileService, IDialogService dialogService)
@@ -86,12 +72,13 @@ namespace SampleSegmenter.ViewModels
             _openFileService = openFileService;
             _dialogService = dialogService;
             
-            _imageProcessingService = new();
+            ImageProcessingService = new();
 
             OpenImageCommand = new DelegateCommand(OpenImageCommandHandler);
             SetDenoiseOptionsCommand = new DelegateCommand(SetDenoiseOptionsCommandHandler);
             SetThresholdOptionsCommand = new DelegateCommand(SetThresholdOptionsCommandHandler);
-            SetMinimumAreaCommand = new DelegateCommand(SetMinimumAreaCommandHandler);
+            SetDilateOptionsCommand = new DelegateCommand(SetDilateOptionsCommandHandler);
+            SetContourOptionsCommand = new DelegateCommand(SetContoursOptionsCommandHandler);
             ShowHistogramCommand = new DelegateCommand(ShowHistogramCommandHandler);
         }
 
@@ -101,66 +88,33 @@ namespace SampleSegmenter.ViewModels
             {
                 _imageFromFile = new ImageFromFile( _openFileService.FileNames[0]);
                 FileName = _imageFromFile.GetFileName();
-                _imageProcessingService.SetOrigMat(_imageFromFile.GetImageMat());
-                UpdateImage(ImageProcessingSteps.Result);
-                IsImageLoaded = true;
+                ImageProcessingService.SetOrigMat(_imageFromFile.GetImageMat());
             }
         }
 
         private void SetDenoiseOptionsCommandHandler()
         {
-            _imageProcessingService.SetDenoiseOptions(DenoiseOptions);
-            UpdateImage(SelectedImageProcessingStep);
+            ImageProcessingService.SetDenoiseOptions(DenoiseOptions);;
         }
 
         private void SetThresholdOptionsCommandHandler()
         {
-            _imageProcessingService.SetThresholdOptions(ThresholdOptions);
-            UpdateImage(SelectedImageProcessingStep);
+            ImageProcessingService.SetThresholdOptions(ThresholdOptions);
         }
 
-        private void SetMinimumAreaCommandHandler()
+        private void SetDilateOptionsCommandHandler()
         {
-            _imageProcessingService.SetMinimumArea(ContoursOptions);
-            UpdateImage(SelectedImageProcessingStep);
+            ImageProcessingService.SetDilateOptions(DilateOptions);
+        }
+
+        private void SetContoursOptionsCommandHandler()
+        {
+            ImageProcessingService.SetContoursOptions(ContoursOptions);
         }
 
         private void ShowHistogramCommandHandler()
         {
-            _dialogService.ShowHistogramDialog(_imageProcessingService.GetContoursInfo(), r=> { });
-        }
-
-        private void UpdateImage(ImageProcessingSteps imageProcessingSteps)
-        {
-            switch(imageProcessingSteps)
-            {
-                case ImageProcessingSteps.Orignal:
-                    {
-                        Image = ImageConverter.Convert(_imageFromFile.GetImageMat());
-                        break;
-                    }
-                case ImageProcessingSteps.Denoised:
-                    {
-                        Image = ImageConverter.Convert(_imageProcessingService.GetDenoisedMat());
-                        break;
-                    }
-                case ImageProcessingSteps.Grayscaled:
-                    {
-                        Image = ImageConverter.Convert(_imageProcessingService.GetGrayScaledMat());
-                        break;
-                    }
-                case ImageProcessingSteps.Binarized:
-                    {
-                        Image = ImageConverter.Convert(_imageProcessingService.GetBinarizedMat());
-                        break;
-                    }
-                case ImageProcessingSteps.Result:
-                    {
-                        Image = ImageConverter.Convert(_imageProcessingService.GetResultMat());
-                        break;
-                    }
-            }
-            ContoursInfo = _imageProcessingService.GetContoursInfoText();
+            _dialogService.ShowHistogramDialog(ImageProcessingService.GetContoursInfo(), _openFileService.FileName, r=> { });
         }
     }
 }

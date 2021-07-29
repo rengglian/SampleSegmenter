@@ -12,6 +12,7 @@ namespace SampleSegmenter.Enums
         Denoised,
         Grayscaled,
         Binarized,
+        Dilated,
         Result
     }
 }
