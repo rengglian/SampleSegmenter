@@ -24,11 +24,7 @@ namespace SampleSegmenter.ViewModels
         public DilateOptions DilateOptions { get; set; } = new();
         
         public DelegateCommand OpenImageCommand { get; }
-        public DelegateCommand SetEqualizerOptionsCommand { get; }
-        public DelegateCommand SetDenoiseOptionsCommand { get; }
-        public DelegateCommand SetThresholdOptionsCommand { get; }
-        public DelegateCommand SetDilateOptionsCommand { get; }
-        public DelegateCommand SetContourOptionsCommand { get; }
+        public DelegateCommand<object> SetOptionsCommand { get; }
         public DelegateCommand ShowHistogramCommand { get; }
 
         public MainWindowViewModel(IOpenFileService openFileService, IDialogService dialogService)
@@ -39,12 +35,13 @@ namespace SampleSegmenter.ViewModels
             ImageProcessingService = new ImageProcessingService();
 
             OpenImageCommand = new DelegateCommand(OpenImageCommandHandler);
-            SetEqualizerOptionsCommand = new DelegateCommand(SetEqualizerOptionsCommandHandler);
-            SetDenoiseOptionsCommand = new DelegateCommand(SetDenoiseOptionsCommandHandler);
-            SetThresholdOptionsCommand = new DelegateCommand(SetThresholdOptionsCommandHandler);
-            SetDilateOptionsCommand = new DelegateCommand(SetDilateOptionsCommandHandler);
-            SetContourOptionsCommand = new DelegateCommand(SetContoursOptionsCommandHandler);
+            SetOptionsCommand = new DelegateCommand<object>(SetOptionsCommandHandler);
             ShowHistogramCommand = new DelegateCommand(ShowHistogramCommandHandler);
+        }
+
+        private void SetOptionsCommandHandler(object options)
+        {
+            ImageProcessingService.SetOptions(options);
         }
 
         private void OpenImageCommandHandler()
@@ -54,31 +51,6 @@ namespace SampleSegmenter.ViewModels
                 _imageFromFile = new ImageFromFile(OpenFileService.FileNames[0]);
                 ImageProcessingService.SetOrigMat(_imageFromFile.GetImageMat());
             }
-        }
-
-        private void SetEqualizerOptionsCommandHandler()
-        {
-            ImageProcessingService.SetOptions(EqualizerOptions);
-        }
-
-        private void SetDenoiseOptionsCommandHandler()
-        {
-            ImageProcessingService.SetOptions(DenoiseOptions);
-        }
-
-        private void SetThresholdOptionsCommandHandler()
-        {
-            ImageProcessingService.SetOptions(ThresholdOptions);
-        }
-
-        private void SetDilateOptionsCommandHandler()
-        {
-            ImageProcessingService.SetOptions(DilateOptions);
-        }
-
-        private void SetContoursOptionsCommandHandler()
-        {
-            ImageProcessingService.SetOptions(ContoursOptions);
         }
 
         private void ShowHistogramCommandHandler()

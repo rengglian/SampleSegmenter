@@ -84,7 +84,7 @@ namespace SampleSegmenter.Services
 
         public void SetOptions<T>(T options)
         {
-            Type optionType = typeof(T);
+            Type optionType = options.GetType();
             if (optionType == typeof(EqualizerOptions)) { _equalizerOptions = options as EqualizerOptions; }
             if (optionType == typeof(DenoiseOptions)) { _denoiseOptions = options as DenoiseOptions; }
             if (optionType == typeof(ThresholdOptions)) { _thresholdOptions = options as ThresholdOptions; }

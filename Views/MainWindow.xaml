@@ -121,7 +121,7 @@
                 <TextBox Grid.Row="0" Grid.Column="5" Text="{Binding DenoiseOptions.TemplateWindowSize}"/>
                 <TextBlock Grid.Row="0" Grid.Column="6" Text="Search Window Size:"/>
                 <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding DenoiseOptions.SearchWindowSize}"/>
-                <Button Grid.Row="0" Grid.Column="8" Command="{Binding SetDenoiseOptionsCommand}" Content="Set"/>
+                <Button Grid.Row="0" Grid.Column="8" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding DenoiseOptions}" Content="Set"/>
                 
             </Grid>
         </GroupBox>
@@ -133,7 +133,7 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <CheckBox Grid.Row="0" Grid.Column="0" Content="Enable Histo Equalizer" IsChecked="{Binding EqualizerOptions.IsEnabled}"/>
-                <Button Grid.Row="0" Grid.Column="1" Command="{Binding SetEqualizerOptionsCommand}" Content="Set"/>
+                <Button Grid.Row="0" Grid.Column="1" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding EqualizerOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 
@@ -152,7 +152,7 @@
                 <TextBlock Grid.Row="0" Grid.Column="2" Text="Max Value:"/>
                 <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding ThresholdOptions.MaxValue}"/>
                 <CheckBox Grid.Row="0" Grid.Column="4" Content="Use Otsu" IsChecked="{Binding ThresholdOptions.UseOtsu}"/>
-                <Button Grid.Row="0" Grid.Column="5" Command="{Binding SetThresholdOptionsCommand}" Content="Set"/>
+                <Button Grid.Row="0" Grid.Column="5" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ThresholdOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 
@@ -171,7 +171,7 @@
                 <TextBlock Grid.Row="0" Grid.Column="2" Text="Iterations:"/>
                 <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding DilateOptions.Iterations}"/>
                 <CheckBox Grid.Row="0" Grid.Column="4" Content="Enable Dilate" IsChecked="{Binding DilateOptions.IsEnabled}"/>
-                <Button Grid.Row="0" Grid.Column="5" Command="{Binding SetDilateOptionsCommand}" Content="Set"/>
+                <Button Grid.Row="0" Grid.Column="5" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding DilateOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 
@@ -188,7 +188,7 @@
                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ContoursOptions.MinimumArea}"/>
                 <CheckBox Grid.Row="0" Grid.Column="2" Content="Fill Contours" IsChecked="{Binding ContoursOptions.FillContours}"/>
                 <CheckBox Grid.Row="0" Grid.Column="3" Content="Convex Hull" IsChecked="{Binding ContoursOptions.ConvexHull}"/>
-                <Button Grid.Row="0" Grid.Column="4" Command="{Binding SetContourOptionsCommand}" Content="Set"/>
+                <Button Grid.Row="0" Grid.Column="4" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ContoursOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 
