@@ -14,6 +14,7 @@ namespace SampleSegmenter.Services
     public class ImageProcessingService : BindableBase, IImageProcessingService
     {
         private Mat _orig;
+        private Mat _cropped;
         private Mat _denoised;
         private Mat _grayscaled;
         private Mat _binarized;
@@ -22,6 +23,7 @@ namespace SampleSegmenter.Services
 
         private readonly List<ContourInfo> _contoursInfo;
 
+        private CropOptions _cropOptions;
         private EqualizerOptions _equalizerOptions;
         private DenoiseOptions _denoiseOptions;
         private ThresholdOptions _thresholdOptions;
@@ -62,6 +64,7 @@ namespace SampleSegmenter.Services
 
         public ImageProcessingService()
         {
+            _cropOptions = new();
             _denoiseOptions = new();
             _equalizerOptions = new();
             _thresholdOptions = new();
@@ -85,6 +88,7 @@ namespace SampleSegmenter.Services
         public void SetOptions<T>(T options)
         {
             Type optionType = options.GetType();
+            if (optionType == typeof(CropOptions)) { _cropOptions = options as CropOptions; }
             if (optionType == typeof(EqualizerOptions)) { _equalizerOptions = options as EqualizerOptions; }
             if (optionType == typeof(DenoiseOptions)) { _denoiseOptions = options as DenoiseOptions; }
             if (optionType == typeof(ThresholdOptions)) { _thresholdOptions = options as ThresholdOptions; }
@@ -100,6 +104,11 @@ namespace SampleSegmenter.Services
                 case ImageProcessingSteps.Orignal:
                     {
                         Image = ImageConverter.Convert(_orig.Clone());
+                        break;
+                    }
+                case ImageProcessingSteps.Cropped:
+                    {
+                        Image = ImageConverter.Convert(_cropped.Clone());
                         break;
                     }
                 case ImageProcessingSteps.Denoised:
@@ -132,6 +141,7 @@ namespace SampleSegmenter.Services
 
         private void Update()
         {
+            Crop();
             Denoise();
             Grayscale();
             Threshold();
@@ -140,12 +150,28 @@ namespace SampleSegmenter.Services
             UpdateImage(SelectedImageProcessingStep);
         }
 
+        private void Crop()
+        {
+            Information = "Crop Image";
+
+            if(_cropOptions.IsEnabled)
+            {
+                var rect = new Rect(_cropOptions.X, _cropOptions.Y, _cropOptions.Width, _cropOptions.Height);
+                var roi = new Mat(_orig, rect);
+                _cropped = roi.Clone();
+            }
+            else
+            {
+                _cropped = _orig.Clone();
+            }
+        }
+
         private void Denoise()
         {
             Information = "Denoise Image";
-            _denoised = _orig.Clone();
+            _denoised = _cropped.Clone();
             Cv2.FastNlMeansDenoisingColored(
-                _orig, 
+                _cropped, 
                 _denoised, 
                 _denoiseOptions.H, 
                 _denoiseOptions.HColor, 
@@ -204,7 +230,7 @@ namespace SampleSegmenter.Services
         private void Contours()
         {
             Information = "Find Contours";
-            _result = _orig.Clone();
+            _result = _cropped.Clone();
             Cv2.FindContours(_dilated, out Point[][] contours, out HierarchyIndex[] hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
 
             var rand = new Random();

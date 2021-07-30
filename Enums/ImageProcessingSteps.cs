@@ -9,6 +9,7 @@ namespace SampleSegmenter.Enums
     public enum ImageProcessingSteps
     {
         Orignal, 
+        Cropped,
         Denoised,
         Grayscaled,
         Binarized,

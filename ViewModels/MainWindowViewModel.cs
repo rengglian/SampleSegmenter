@@ -17,6 +17,7 @@ namespace SampleSegmenter.ViewModels
 
         private ImageFromFile _imageFromFile;
 
+        public CropOptions CropOptions { get; set; } = new();
         public EqualizerOptions EqualizerOptions { get; set; } = new();
         public DenoiseOptions DenoiseOptions { get; set; } = new();
         public ThresholdOptions ThresholdOptions { get; set; } = new();

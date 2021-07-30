@@ -9,7 +9,7 @@
         xmlns:prism="http://prismlibrary.com/"
         prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
-        Title="MainWindow" Height="900" Width="1000">
+        Title="MainWindow" Height="1000" Width="800">
     <Window.Resources>
         <ResourceDictionary>
             <Style TargetType="TextBlock">
@@ -47,6 +47,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
@@ -100,7 +101,35 @@
 
             </Grid>
         </GroupBox>
-        <GroupBox Grid.Row="2" Grid.Column="0" Header="Denoise Options">
+        <GroupBox Grid.Row="2" Grid.Column="0" Header="Crop Options">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Start X:"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CropOptions.X}"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Start Y:"/>
+                <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding CropOptions.Y}"/>
+                <TextBlock Grid.Row="0" Grid.Column="4" Text="Width:"/>
+                <TextBox Grid.Row="0" Grid.Column="5" Text="{Binding CropOptions.Width}"/>
+                <TextBlock Grid.Row="0" Grid.Column="6" Text="Height:"/>
+                <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding CropOptions.Height}"/>
+                <CheckBox Grid.Row="0" Grid.Column="8" Content="Enable Crop" IsChecked="{Binding CropOptions.IsEnabled}"/>
+                <Button Grid.Row="0" Grid.Column="9" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding CropOptions}" Content="Set"/>
+                
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="3" Grid.Column="0" Header="Denoise Options">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -122,11 +151,11 @@
                 <TextBlock Grid.Row="0" Grid.Column="6" Text="Search Window Size:"/>
                 <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding DenoiseOptions.SearchWindowSize}"/>
                 <Button Grid.Row="0" Grid.Column="8" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding DenoiseOptions}" Content="Set"/>
-                
+
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="3" Grid.Column="0" Header="Grayscale Options">
+        <GroupBox Grid.Row="4" Grid.Column="0" Header="Grayscale Options">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -137,7 +166,7 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="4" Grid.Column="0" Header="Threshold Options">
+        <GroupBox Grid.Row="5" Grid.Column="0" Header="Threshold Options">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -156,7 +185,7 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="5" Grid.Column="0" Header="Dilate Options">
+        <GroupBox Grid.Row="6" Grid.Column="0" Header="Dilate Options">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -175,7 +204,7 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="6" Grid.Column="0" Header="Contours">
+        <GroupBox Grid.Row="7" Grid.Column="0" Header="Contours">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
