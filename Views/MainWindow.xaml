@@ -63,7 +63,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBox Grid.Row="0" Grid.Column="0" Margin="5" Text="{Binding FileName}" />
+                <TextBox Grid.Row="0" Grid.Column="0" Margin="5" Text="{Binding OpenFileService.FileName}" />
                 <Button Grid.Row="0" Grid.Column="1" Margin="5" Command="{Binding OpenImageCommand}" Content="Open File" />
             </Grid>
         </GroupBox>
@@ -122,15 +122,18 @@
                 <TextBlock Grid.Row="0" Grid.Column="6" Text="Search Window Size:"/>
                 <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding DenoiseOptions.SearchWindowSize}"/>
                 <Button Grid.Row="0" Grid.Column="8" Command="{Binding SetDenoiseOptionsCommand}" Content="Set"/>
+                
             </Grid>
         </GroupBox>
 
         <GroupBox Grid.Row="3" Grid.Column="0" Header="Grayscale Options">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <CheckBox Grid.Row="0" Grid.Column="0" Content="Enable Histo Equalizer" IsChecked="{Binding IsEqualizerEnabled}"/>
+                <CheckBox Grid.Row="0" Grid.Column="0" Content="Enable Histo Equalizer" IsChecked="{Binding EqualizerOptions.IsEnabled}"/>
+                <Button Grid.Row="0" Grid.Column="1" Command="{Binding SetEqualizerOptionsCommand}" Content="Set"/>
             </Grid>
         </GroupBox>
 

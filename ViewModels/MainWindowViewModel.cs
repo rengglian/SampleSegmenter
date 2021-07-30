@@ -1,66 +1,30 @@
 ﻿using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using SampleSegmenter.Converters;
-using SampleSegmenter.Enums;
 using SampleSegmenter.Extensions;
 using SampleSegmenter.Interfaces;
 using SampleSegmenter.Models;
 using SampleSegmenter.Options;
 using SampleSegmenter.Services;
-using System.Windows.Media;
 
 namespace SampleSegmenter.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
-        private readonly IOpenFileService _openFileService;
+        public IOpenFileService OpenFileService { get; set; }
         private readonly IDialogService _dialogService;
-        public ImageProcessingService ImageProcessingService { get; set; }
+        public IImageProcessingService ImageProcessingService { get; set; }
 
         private ImageFromFile _imageFromFile;
 
-        private string _fileName;
-        public string FileName
-        {
-            get { return _fileName; }
-            set { SetProperty(ref _fileName, value); }
-        }
-
-        private ImageSource _image;
-        public ImageSource Image
-        {
-            get { return _image; }
-            set { SetProperty(ref _image, value); }
-        }
-
+        public EqualizerOptions EqualizerOptions { get; set; } = new();
         public DenoiseOptions DenoiseOptions { get; set; } = new();
         public ThresholdOptions ThresholdOptions { get; set; } = new();
         public ContoursOptions ContoursOptions { get; set; } = new();
         public DilateOptions DilateOptions { get; set; } = new();
-
-        private bool isEqualizerEnabled = true;
-        public bool IsEqualizerEnabled
-        {
-            get { return isEqualizerEnabled; }
-            set { 
-                SetProperty(ref isEqualizerEnabled, value);
-                ImageProcessingService.SetEnableEqualized(IsEqualizerEnabled);
-            }
-        }
-
-        private ImageProcessingSteps _selectedImageProcessingStep = ImageProcessingSteps.Result;
-        public ImageProcessingSteps SelectedImageProcessingStep
-        {
-            get { return _selectedImageProcessingStep; }
-            set
-            {
-                SetProperty(ref _selectedImageProcessingStep, value);
-            }
-        }
         
-
         public DelegateCommand OpenImageCommand { get; }
+        public DelegateCommand SetEqualizerOptionsCommand { get; }
         public DelegateCommand SetDenoiseOptionsCommand { get; }
         public DelegateCommand SetThresholdOptionsCommand { get; }
         public DelegateCommand SetDilateOptionsCommand { get; }
@@ -69,12 +33,13 @@ namespace SampleSegmenter.ViewModels
 
         public MainWindowViewModel(IOpenFileService openFileService, IDialogService dialogService)
         {
-            _openFileService = openFileService;
+            OpenFileService = openFileService;
             _dialogService = dialogService;
             
-            ImageProcessingService = new();
+            ImageProcessingService = new ImageProcessingService();
 
             OpenImageCommand = new DelegateCommand(OpenImageCommandHandler);
+            SetEqualizerOptionsCommand = new DelegateCommand(SetEqualizerOptionsCommandHandler);
             SetDenoiseOptionsCommand = new DelegateCommand(SetDenoiseOptionsCommandHandler);
             SetThresholdOptionsCommand = new DelegateCommand(SetThresholdOptionsCommandHandler);
             SetDilateOptionsCommand = new DelegateCommand(SetDilateOptionsCommandHandler);
@@ -84,37 +49,41 @@ namespace SampleSegmenter.ViewModels
 
         private void OpenImageCommandHandler()
         {
-            if ((bool)_openFileService.OpenFile())
+            if ((bool)OpenFileService.OpenFile())
             {
-                _imageFromFile = new ImageFromFile( _openFileService.FileNames[0]);
-                FileName = _imageFromFile.GetFileName();
+                _imageFromFile = new ImageFromFile(OpenFileService.FileNames[0]);
                 ImageProcessingService.SetOrigMat(_imageFromFile.GetImageMat());
             }
         }
 
+        private void SetEqualizerOptionsCommandHandler()
+        {
+            ImageProcessingService.SetOptions(EqualizerOptions);
+        }
+
         private void SetDenoiseOptionsCommandHandler()
         {
-            ImageProcessingService.SetDenoiseOptions(DenoiseOptions);;
+            ImageProcessingService.SetOptions(DenoiseOptions);
         }
 
         private void SetThresholdOptionsCommandHandler()
         {
-            ImageProcessingService.SetThresholdOptions(ThresholdOptions);
+            ImageProcessingService.SetOptions(ThresholdOptions);
         }
 
         private void SetDilateOptionsCommandHandler()
         {
-            ImageProcessingService.SetDilateOptions(DilateOptions);
+            ImageProcessingService.SetOptions(DilateOptions);
         }
 
         private void SetContoursOptionsCommandHandler()
         {
-            ImageProcessingService.SetContoursOptions(ContoursOptions);
+            ImageProcessingService.SetOptions(ContoursOptions);
         }
 
         private void ShowHistogramCommandHandler()
         {
-            _dialogService.ShowHistogramDialog(ImageProcessingService.GetContoursInfo(), _openFileService.FileName, r=> { });
+            _dialogService.ShowHistogramDialog(ImageProcessingService.GetContoursInfo(), OpenFileService.FileNameOnly, r=> { });
         }
     }
 }

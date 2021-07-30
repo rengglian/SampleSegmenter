@@ -2,6 +2,7 @@
 using Prism.Mvvm;
 using SampleSegmenter.Converters;
 using SampleSegmenter.Enums;
+using SampleSegmenter.Interfaces;
 using SampleSegmenter.Models;
 using SampleSegmenter.Options;
 using System;
@@ -10,7 +11,7 @@ using System.Windows.Media;
 
 namespace SampleSegmenter.Services
 {
-    public class ImageProcessingService : BindableBase
+    public class ImageProcessingService : BindableBase, IImageProcessingService
     {
         private Mat _orig;
         private Mat _denoised;
@@ -21,8 +22,7 @@ namespace SampleSegmenter.Services
 
         private readonly List<ContourInfo> _contoursInfo;
 
-        private bool _enableEqualized;
-
+        private EqualizerOptions _equalizerOptions;
         private DenoiseOptions _denoiseOptions;
         private ThresholdOptions _thresholdOptions;
         private DilateOptions _dilateOptions;
@@ -35,7 +35,7 @@ namespace SampleSegmenter.Services
             set { SetProperty(ref _image, value); }
         }
 
-                private ImageProcessingSteps _selectedImageProcessingStep = ImageProcessingSteps.Result;
+        private ImageProcessingSteps _selectedImageProcessingStep = ImageProcessingSteps.Result;
         public ImageProcessingSteps SelectedImageProcessingStep
         {
             get { return _selectedImageProcessingStep; }
@@ -63,7 +63,7 @@ namespace SampleSegmenter.Services
         public ImageProcessingService()
         {
             _denoiseOptions = new();
-            _enableEqualized = true;
+            _equalizerOptions = new();
             _thresholdOptions = new();
             _dilateOptions = new();
             _contoursOptions = new();
@@ -82,36 +82,16 @@ namespace SampleSegmenter.Services
             return _contoursInfo;
         }
 
-        public void SetDenoiseOptions(DenoiseOptions denoiseOptions)
+        public void SetOptions<T>(T options)
         {
-            _denoiseOptions = denoiseOptions;
+            Type optionType = typeof(T);
+            if (optionType == typeof(EqualizerOptions)) { _equalizerOptions = options as EqualizerOptions; }
+            if (optionType == typeof(DenoiseOptions)) { _denoiseOptions = options as DenoiseOptions; }
+            if (optionType == typeof(ThresholdOptions)) { _thresholdOptions = options as ThresholdOptions; }
+            if (optionType == typeof(DilateOptions)) { _dilateOptions = options as DilateOptions; }
+            if (optionType == typeof(ContoursOptions)) { _contoursOptions = options as ContoursOptions; }
             Update();
         }
-
-        public void SetEnableEqualized(bool enable)
-        {
-            _enableEqualized = enable;
-            Update();
-        }
-
-        public void SetThresholdOptions(ThresholdOptions options)
-        {
-            _thresholdOptions = options;
-            Update();
-        }
-
-        public void SetDilateOptions(DilateOptions options)
-        {
-            _dilateOptions = options;
-            Update();
-        }
-
-        public void SetContoursOptions(ContoursOptions options)
-        {
-            _contoursOptions = options;
-            Update();
-        }
-
 
         private void UpdateImage(ImageProcessingSteps imageProcessingSteps)
         {
@@ -150,7 +130,6 @@ namespace SampleSegmenter.Services
             }
         }
 
-
         private void Update()
         {
             Denoise();
@@ -179,7 +158,7 @@ namespace SampleSegmenter.Services
             Information = "Grayscale Image";
             _grayscaled = _denoised.Clone();
             Cv2.CvtColor(_denoised, _grayscaled, ColorConversionCodes.BGR2GRAY);
-            if (_enableEqualized) Cv2.EqualizeHist(_grayscaled, _grayscaled);
+            if (_equalizerOptions.IsEnabled) Cv2.EqualizeHist(_grayscaled, _grayscaled);
         }
 
         private void Threshold()

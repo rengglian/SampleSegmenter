@@ -6,5 +6,6 @@
         public string[] FileNames { get; }
 
         public string FileName { get; }
+        public string FileNameOnly { get; }
     }
 }

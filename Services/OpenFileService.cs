@@ -1,13 +1,21 @@
 ﻿using Microsoft.Win32;
+using Prism.Mvvm;
 using SampleSegmenter.Interfaces;
 using System.IO;
 
 namespace SampleSegmenter.Services
 {
-    public class OpenFileService : IOpenFileService
+    public class OpenFileService : BindableBase, IOpenFileService
     {
         OpenFileDialog _openFileDialog = new OpenFileDialog();
         string[] _selectedFileNames;
+
+        private string _fileName;
+        public string FileName
+        {
+            get { return _fileName; }
+            set { SetProperty(ref _fileName, value); }
+        }
 
         public bool? OpenFile()
         {
@@ -20,6 +28,7 @@ namespace SampleSegmenter.Services
             if (choosenFile.HasValue && choosenFile.Value)
             {
                 _selectedFileNames = _openFileDialog.FileNames;
+                FileName = _selectedFileNames[0];
             }
             return choosenFile;
         }
@@ -29,7 +38,7 @@ namespace SampleSegmenter.Services
             get { return _selectedFileNames; }
         }
 
-        public string FileName
+        public string FileNameOnly
         {
             get { return Path.GetFileNameWithoutExtension(_selectedFileNames[0]); }
         }
