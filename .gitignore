@@ -30,7 +30,6 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
-[Pp]ublishProfiles/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -177,6 +176,8 @@ publish/
 # but database connection strings (with potential passwords) will be unencrypted
 *.pubxml
 *.publishproj
+
+*.pubxml.user
 
 # Microsoft Azure Web App publish settings. Comment the next line if you want to
 # checkin your Azure Web App publish settings, but sensitive information contained
