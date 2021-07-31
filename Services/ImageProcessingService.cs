@@ -156,7 +156,7 @@ namespace SampleSegmenter.Services
 
             if(_cropOptions.IsEnabled)
             {
-                var rect = new Rect(_cropOptions.X, _cropOptions.Y, _cropOptions.Width, _cropOptions.Height);
+                var rect = new Rect((int)_cropOptions.X, (int)_cropOptions.Y, (int)_cropOptions.Width, (int)_cropOptions.Height);
                 var roi = new Mat(_orig, rect);
                 _cropped = roi.Clone();
             }
