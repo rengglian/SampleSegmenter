@@ -51,6 +51,11 @@ namespace SampleSegmenter.ViewModels
             {
                 _imageFromFile = new ImageFromFile(OpenFileService.FileNames[0]);
                 ImageProcessingService.SetOrigMat(_imageFromFile.GetImageMat());
+                CropOptions.IsEnabled = false;
+                CropOptions.X = 0;
+                CropOptions.Y = 0;
+                CropOptions.Width = 0;
+                CropOptions.Height = 0;
             }
         }
 

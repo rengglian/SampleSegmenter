@@ -77,6 +77,7 @@ namespace SampleSegmenter.Services
         {
             Information = "Set Original Image";
             _orig = orig.Clone();
+            _cropOptions = new();
             Update();
         }
 
@@ -153,8 +154,7 @@ namespace SampleSegmenter.Services
         private void Crop()
         {
             Information = "Crop Image";
-
-            if(_cropOptions.IsEnabled)
+            if (_cropOptions.IsEnabled)
             {
                 var rect = new Rect((int)_cropOptions.X, (int)_cropOptions.Y, (int)_cropOptions.Width, (int)_cropOptions.Height);
                 var roi = new Mat(_orig, rect);
@@ -164,6 +164,7 @@ namespace SampleSegmenter.Services
             {
                 _cropped = _orig.Clone();
             }
+            
         }
 
         private void Denoise()
