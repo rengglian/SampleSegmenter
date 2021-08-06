@@ -42,7 +42,10 @@
                 <Setter Property="VerticalAlignment" Value="Center"/>
                 <Setter Property="Margin" Value="5"/>
             </Style>
-
+            <Style TargetType="Slider">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="5"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid Margin="15">
@@ -191,16 +194,18 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Threshold Value:"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ThresholdOptions.ThresholdValue}"/>
-                <TextBlock Grid.Row="0" Grid.Column="2" Text="Max Value:"/>
-                <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding ThresholdOptions.MaxValue}"/>
-                <CheckBox Grid.Row="0" Grid.Column="4" Content="Use Otsu" IsChecked="{Binding ThresholdOptions.UseOtsu}"/>
-                <Button Grid.Row="0" Grid.Column="5" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ThresholdOptions}" Content="Set"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Threshold"/>
+                <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="255" TickFrequency="10" Value="{Binding ThresholdOptions.ThresholdValue}"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ThresholdOptions.ThresholdValue, StringFormat=N0}"/>
+                <TextBlock Grid.Row="0" Grid.Column="3" Text="Max Value:"/>
+                <TextBox Grid.Row="0" Grid.Column="4" Text="{Binding ThresholdOptions.MaxValue}"/>
+                <CheckBox Grid.Row="0" Grid.Column="5" Content="Use Otsu" IsChecked="{Binding ThresholdOptions.UseOtsu}"/>
+                <Button Grid.Row="0" Grid.Column="6" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ThresholdOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 
