@@ -7,7 +7,7 @@ namespace SampleSegmenter.Services
 {
     public class OpenFileService : BindableBase, IOpenFileService
     {
-        OpenFileDialog _openFileDialog = new OpenFileDialog();
+        readonly OpenFileDialog _openFileDialog = new();
         string[] _selectedFileNames;
 
         private string _fileName;
