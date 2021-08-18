@@ -17,7 +17,7 @@ namespace SampleSegmenter.ViewModels
 
         private ImageFromFile _imageFromFile;
 
-        public CropOptions CropOptions { get; set; } = new();
+        public MaskOptions MaskOptions { get; set; } = new();
         public EqualizerOptions EqualizerOptions { get; set; } = new();
         public DenoiseOptions DenoiseOptions { get; set; } = new();
         public ThresholdOptions ThresholdOptions { get; set; } = new();
@@ -51,11 +51,11 @@ namespace SampleSegmenter.ViewModels
             {
                 _imageFromFile = new ImageFromFile(OpenFileService.FileNames[0]);
                 ImageProcessingService.SetOrigMat(_imageFromFile.GetImageMat());
-                CropOptions.IsEnabled = false;
-                CropOptions.X = 0;
-                CropOptions.Y = 0;
-                CropOptions.Width = 0;
-                CropOptions.Height = 0;
+                MaskOptions.IsEnabled = false;
+                MaskOptions.X = 0;
+                MaskOptions.Y = 0;
+                MaskOptions.Width = 0;
+                MaskOptions.Height = 0;
             }
         }
 

@@ -2,7 +2,7 @@
 
 namespace SampleSegmenter.Options
 {
-    public class CropOptions : BindableBase
+    public class MaskOptions : BindableBase
     {
         private bool _isEnabled;
         public bool IsEnabled

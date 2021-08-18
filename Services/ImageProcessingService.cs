@@ -14,19 +14,19 @@ namespace SampleSegmenter.Services
     public class ImageProcessingService : BindableBase, IImageProcessingService
     {
         private Mat _orig;
-        private Mat _cropped;
         private Mat _denoised;
         private Mat _grayscaled;
         private Mat _binarized;
+        private Mat _masked;
         private Mat _dilated;
         private Mat _result;
 
         private readonly List<ContourInfo> _contoursInfo;
 
-        private CropOptions _cropOptions;
         private EqualizerOptions _equalizerOptions;
         private DenoiseOptions _denoiseOptions;
         private ThresholdOptions _thresholdOptions;
+        private MaskOptions _maskOptions;
         private DilateOptions _dilateOptions;
         private ContoursOptions _contoursOptions;
 
@@ -64,10 +64,10 @@ namespace SampleSegmenter.Services
 
         public ImageProcessingService()
         {
-            _cropOptions = new();
             _denoiseOptions = new();
             _equalizerOptions = new();
             _thresholdOptions = new();
+            _maskOptions = new();
             _dilateOptions = new();
             _contoursOptions = new();
             _contoursInfo = new();
@@ -77,7 +77,7 @@ namespace SampleSegmenter.Services
         {
             Information = "Set Original Image";
             _orig = orig.Clone();
-            _cropOptions = new();
+            _maskOptions = new();
             Update();
         }
 
@@ -89,10 +89,10 @@ namespace SampleSegmenter.Services
         public void SetOptions<T>(T options)
         {
             Type optionType = options.GetType();
-            if (optionType == typeof(CropOptions)) { _cropOptions = options as CropOptions; }
             if (optionType == typeof(EqualizerOptions)) { _equalizerOptions = options as EqualizerOptions; }
             if (optionType == typeof(DenoiseOptions)) { _denoiseOptions = options as DenoiseOptions; }
             if (optionType == typeof(ThresholdOptions)) { _thresholdOptions = options as ThresholdOptions; }
+            if (optionType == typeof(MaskOptions)) { _maskOptions = options as MaskOptions; }
             if (optionType == typeof(DilateOptions)) { _dilateOptions = options as DilateOptions; }
             if (optionType == typeof(ContoursOptions)) { _contoursOptions = options as ContoursOptions; }
             Update();
@@ -105,11 +105,6 @@ namespace SampleSegmenter.Services
                 case ImageProcessingSteps.Orignal:
                     {
                         Image = ImageConverter.Convert(_orig.Clone());
-                        break;
-                    }
-                case ImageProcessingSteps.Cropped:
-                    {
-                        Image = ImageConverter.Convert(_cropped.Clone());
                         break;
                     }
                 case ImageProcessingSteps.Denoised:
@@ -127,6 +122,11 @@ namespace SampleSegmenter.Services
                         Image = ImageConverter.Convert(_binarized.Clone());
                         break;
                     }
+                case ImageProcessingSteps.Masked:
+                    {
+                        Image = ImageConverter.Convert(_masked.Clone());
+                        break;
+                    }
                 case ImageProcessingSteps.Dilated:
                     {
                         Image = ImageConverter.Convert(_dilated.Clone());
@@ -142,37 +142,21 @@ namespace SampleSegmenter.Services
 
         private void Update()
         {
-            Crop();
             Denoise();
             Grayscale();
             Threshold();
+            Mask();
             Dilate();
             Contours();
             UpdateImage(SelectedImageProcessingStep);
         }
 
-        private void Crop()
-        {
-            Information = "Crop Image";
-            if (_cropOptions.IsEnabled)
-            {
-                var rect = new Rect((int)_cropOptions.X, (int)_cropOptions.Y, (int)_cropOptions.Width, (int)_cropOptions.Height);
-                var roi = new Mat(_orig, rect);
-                _cropped = roi.Clone();
-            }
-            else
-            {
-                _cropped = _orig.Clone();
-            }
-            
-        }
-
         private void Denoise()
         {
             Information = "Denoise Image";
-            _denoised = _cropped.Clone();
+            _denoised = _orig.Clone();
             Cv2.FastNlMeansDenoisingColored(
-                _cropped, 
+                _orig, 
                 _denoised, 
                 _denoiseOptions.H, 
                 _denoiseOptions.HColor, 
@@ -205,17 +189,28 @@ namespace SampleSegmenter.Services
 
             _binarized = _grayscaled.Clone();
             Cv2.Threshold(_grayscaled, _binarized, _thresholdOptions.ThresholdValue, _thresholdOptions.MaxValue, thresholdTypes);
-            Point p1 = new(0, 0);
-            Point p2 = new(_binarized.Cols, _binarized.Rows);
-            int thickness = 2;
-            Cv2.Rectangle(_binarized, p1, p2, new Scalar(255, 255, 255), thickness);
+        }
+
+        private void Mask()
+        {
+            Information = "Mask Image";
+            if (_maskOptions.IsEnabled)
+            {
+                var rect = new Rect((int)_maskOptions.X, (int)_maskOptions.Y, (int)_maskOptions.Width, (int)_maskOptions.Height);
+                var roi = new Mat(_binarized, rect);
+                _masked = roi.Clone();
+            }
+            else
+            {
+                _masked = _binarized.Clone();
+            }
 
         }
 
         private void Dilate()
         {
             Information = "Dilate Image";
-            _dilated = _binarized.Clone();
+            _dilated = _masked.Clone();
 
             if (_dilateOptions.IsEnabled)
             {
@@ -224,15 +219,15 @@ namespace SampleSegmenter.Services
                     new Size(2 * _dilateOptions.Size + 1, 2 * _dilateOptions.Size + 1),
                     new Point(_dilateOptions.Size, _dilateOptions.Size));
 
-                Cv2.Dilate(_binarized, _dilated, struct_element, iterations: _dilateOptions.Iterations);
+                Cv2.Dilate(_masked, _dilated, struct_element, iterations: _dilateOptions.Iterations);
             }
         }
 
         private void Contours()
         {
             Information = "Find Contours";
-            _result = _cropped.Clone();
-            Cv2.FindContours(_dilated, out Point[][] contours, out HierarchyIndex[] hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
+            _result = _orig.Clone();
+            Cv2.FindContours(_masked, out Point[][] contours, out HierarchyIndex[] hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
 
             var rand = new Random();
             var thickness = _contoursOptions.FillContours ? -1 : 2;

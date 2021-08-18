@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SampleSegmenter.Enums
+﻿namespace SampleSegmenter.Enums
 {
     public enum ImageProcessingSteps
     {
-        Orignal, 
-        Cropped,
+        Orignal,
         Denoised,
         Grayscaled,
         Binarized,
+        Masked,
         Dilated,
         Result
     }
