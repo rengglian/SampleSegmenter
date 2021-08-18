@@ -237,7 +237,7 @@ namespace SampleSegmenter.Services
             foreach (HierarchyIndex hi in hierarchyIndexes)
             {
                 Information = @"Analyse Contour " + hi.Next;
-                if(hi.Next != -1 && hi.Parent == 0)
+                if(hi.Next != -1)
                 {
                     var contour = contours[hi.Next];
                     if(_contoursOptions.ConvexHull)
