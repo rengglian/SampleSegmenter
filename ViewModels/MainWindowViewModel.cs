@@ -6,6 +6,8 @@ using SampleSegmenter.Interfaces;
 using SampleSegmenter.Models;
 using SampleSegmenter.Options;
 using SampleSegmenter.Services;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SampleSegmenter.ViewModels
 {
@@ -13,7 +15,13 @@ namespace SampleSegmenter.ViewModels
     {
         public IOpenFileService OpenFileService { get; set; }
         private readonly IDialogService _dialogService;
-        public IImageProcessingService ImageProcessingService { get; set; }
+        private List<IImageProcessingService> _imageProcessingServices { get; set; }
+        private IImageProcessingService _imageProcessingService;
+        public IImageProcessingService ImageProcessingService 
+        {
+            get { return _imageProcessingService; }
+            set { SetProperty(ref _imageProcessingService, value); }
+        }
 
         private ImageFromFile _imageFromFile;
 
@@ -49,13 +57,12 @@ namespace SampleSegmenter.ViewModels
         {
             if ((bool)OpenFileService.OpenFile())
             {
+                _imageProcessingServices = new();
+
                 _imageFromFile = new ImageFromFile(OpenFileService.FileNames[0]);
-                ImageProcessingService.SetOrigMat(_imageFromFile.GetImageMat());
-                MaskOptions.IsEnabled = false;
-                MaskOptions.X = 0;
-                MaskOptions.Y = 0;
-                MaskOptions.Width = 0;
-                MaskOptions.Height = 0;
+                _imageProcessingServices.Add(new ImageProcessingService());
+                _imageProcessingServices.First().SetOrigMat(_imageFromFile.GetImageMat());
+                ImageProcessingService = _imageProcessingServices.First();
             }
         }
 

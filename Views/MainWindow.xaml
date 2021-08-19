@@ -106,13 +106,13 @@
                         <Image Stretch="None"  Source="{Binding ImageProcessingService.Image}"/>
                         <Canvas>
                             <Rectangle
-                                Width="{Binding CropOptions.Width}"
-                                Height="{Binding CropOptions.Height}"
+                                Width="{Binding MaskOptions.Width}"
+                                Height="{Binding MaskOptions.Height}"
                                 Fill="Transparent"
                                 Stroke="Red" 
                                 StrokeThickness="3"
-                                Canvas.Left="{Binding CropOptions.X}"
-                                Canvas.Top="{Binding CropOptions.Y}"
+                                Canvas.Left="{Binding MaskOptions.X}"
+                                Canvas.Top="{Binding MaskOptions.Y}"
                                 Visibility="{Binding ImageProcessingService.SelectedImageProcessingStep, Converter={StaticResource ImageProcessingStepToVisibilityConverter}}"/>
                         </Canvas>
                     </Grid>
