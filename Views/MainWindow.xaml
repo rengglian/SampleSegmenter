@@ -170,14 +170,16 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Threshold"/>
                 <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="255" TickFrequency="10" Value="{Binding ThresholdOptions.ThresholdValue}"/>
                 <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ThresholdOptions.ThresholdValue, StringFormat=N0}"/>
                 <TextBlock Grid.Row="0" Grid.Column="3" Text="Max Value:"/>
                 <TextBox Grid.Row="0" Grid.Column="4" Text="{Binding ThresholdOptions.MaxValue}"/>
-                <CheckBox Grid.Row="0" Grid.Column="5" Content="Use Otsu" IsChecked="{Binding ThresholdOptions.UseOtsu}"/>
-                <Button Grid.Row="0" Grid.Column="6" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ThresholdOptions}" Content="Set"/>
+                <CheckBox Grid.Row="0" Grid.Column="5" Content="Invert" IsChecked="{Binding ThresholdOptions.Invert}"/>
+                <CheckBox Grid.Row="0" Grid.Column="6" Content="Use Otsu" IsChecked="{Binding ThresholdOptions.UseOtsu}"/>
+                <Button Grid.Row="0" Grid.Column="7" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ThresholdOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 

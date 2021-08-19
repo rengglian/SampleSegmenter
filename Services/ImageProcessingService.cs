@@ -176,16 +176,11 @@ namespace SampleSegmenter.Services
         {
             Information = "Binarize Image";
 
-            ThresholdTypes thresholdTypes;
+            ThresholdTypes thresholdTypes = _thresholdOptions.Invert ? ThresholdTypes.BinaryInv : ThresholdTypes.Binary;
             if (_thresholdOptions.UseOtsu)
             {
-                thresholdTypes = ThresholdTypes.Otsu | ThresholdTypes.BinaryInv;
-            }
-            else
-            {
-                thresholdTypes = ThresholdTypes.BinaryInv;
-            }
-            
+                thresholdTypes = thresholdTypes | ThresholdTypes.Otsu;
+            }            
 
             _binarized = _grayscaled.Clone();
             Cv2.Threshold(_grayscaled, _binarized, _thresholdOptions.ThresholdValue, _thresholdOptions.MaxValue, thresholdTypes);

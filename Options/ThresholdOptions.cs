@@ -11,6 +11,13 @@ namespace SampleSegmenter.Options
             set { SetProperty(ref _useOtsu, value); }
         }
 
+        private bool _invert = true;
+        public bool Invert
+        {
+            get { return _invert; }
+            set { SetProperty(ref _invert, value); }
+        }
+
         private double _thresholdValue = 0.0;
         public double ThresholdValue
         {
