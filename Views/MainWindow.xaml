@@ -112,8 +112,7 @@
                                 Stroke="Red" 
                                 StrokeThickness="3"
                                 Canvas.Left="{Binding MaskOptions.X}"
-                                Canvas.Top="{Binding MaskOptions.Y}"
-                                Visibility="{Binding ImageProcessingService.SelectedImageProcessingStep, Converter={StaticResource ImageProcessingStepToVisibilityConverter}}"/>
+                                Canvas.Top="{Binding MaskOptions.Y}"/>
                         </Canvas>
                     </Grid>
                 </Viewbox>
@@ -183,7 +182,7 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="5" Grid.Column="0" Header="Mask Options" IsEnabled="{Binding ImageProcessingService.SelectedImageProcessingStep, Converter={StaticResource ImageProcessingStepToEnableConverter}}">
+        <GroupBox Grid.Row="5" Grid.Column="0" Header="Mask Options">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>

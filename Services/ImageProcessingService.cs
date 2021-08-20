@@ -195,9 +195,12 @@ namespace SampleSegmenter.Services
             Information = "Mask Image";
             if (_maskOptions.IsEnabled)
             {
-                var rect = new Rect((int)_maskOptions.X, (int)_maskOptions.Y, (int)_maskOptions.Width, (int)_maskOptions.Height);
-                var roi = new Mat(_binarized, rect);
-                _masked = roi.Clone();
+                using var mask = new Mat(_binarized.Height, _binarized.Width, MatType.CV_8UC1, new Scalar(0));
+                using var destination = new Mat(_binarized.Height, _binarized.Width, MatType.CV_8UC1, new Scalar(255));
+                //Cv2.Circle(mask, _binarized.Width / 2, _binarized.Height/2, _binarized.Height/4, new Scalar(255), -1);
+                Cv2.Rectangle(mask, new Point(_maskOptions.X, _maskOptions.Y), new Point(_maskOptions.X + _maskOptions.Width, _maskOptions.Y + _maskOptions.Height), new Scalar(255, 255, 255), -1);
+                _binarized.CopyTo(destination, mask);
+                _masked = destination.Clone();
             }
             else
             {
@@ -226,7 +229,7 @@ namespace SampleSegmenter.Services
         {
             Information = "Find Contours";
             _result = _orig.Clone();
-            Cv2.FindContours(_masked, out Point[][] contours, out HierarchyIndex[] hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
+            Cv2.FindContours(_dilated, out Point[][] contours, out HierarchyIndex[] hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
 
             var rand = new Random();
             var thickness = _contoursOptions.FillContours ? -1 : 2;
@@ -235,13 +238,15 @@ namespace SampleSegmenter.Services
             int counter = 0;
             foreach (HierarchyIndex hi in hierarchyIndexes)
             {
-                if(hi.Next != -1)
+                var contourIndex = hi.Next;
+
+                if(hi.Next != -1 && hi.Parent == 0)
                 {
-                    var contour = contours[hi.Next];
+                    var contour = contours[contourIndex];
                     if(_contoursOptions.ConvexHull)
                     {
                         contour = Cv2.ConvexHull(contour, true);
-                        contours[hi.Next] = contour;
+                        contours[contourIndex] = contour;
                     }
                     var area = Cv2.ContourArea(contour);
                     if(area > _contoursOptions.MinimumArea)
@@ -256,7 +261,7 @@ namespace SampleSegmenter.Services
                         Cv2.DrawContours(
                             _result,
                             contours,
-                            hi.Next,
+                            contourIndex,
                             color: randomColor,
                             thickness: thickness,
                             lineType: LineTypes.Link8,
