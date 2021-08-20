@@ -7,6 +7,7 @@ using SampleSegmenter.Models;
 using SampleSegmenter.Options;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace SampleSegmenter.Services
@@ -142,13 +143,16 @@ namespace SampleSegmenter.Services
 
         private void Update()
         {
-            Denoise();
-            Grayscale();
-            Threshold();
-            Mask();
-            Dilate();
-            Contours();
-            UpdateImage(SelectedImageProcessingStep);
+            Task.Factory.StartNew(() =>
+            {
+                Denoise();
+                Grayscale();
+                Threshold();
+                Mask();
+                Dilate();
+                Contours();
+                UpdateImage(SelectedImageProcessingStep);
+            });
         }
 
         private void Denoise()
@@ -228,10 +232,9 @@ namespace SampleSegmenter.Services
             var thickness = _contoursOptions.FillContours ? -1 : 2;
 
             _contoursInfo.Clear();
-
+            int counter = 0;
             foreach (HierarchyIndex hi in hierarchyIndexes)
             {
-                Information = @"Analyse Contour " + hi.Next;
                 if(hi.Next != -1)
                 {
                     var contour = contours[hi.Next];
@@ -243,6 +246,7 @@ namespace SampleSegmenter.Services
                     var area = Cv2.ContourArea(contour);
                     if(area > _contoursOptions.MinimumArea)
                     {
+                        Information = @"Analyse Contour " + ++counter;
                         Moments moment = Cv2.Moments(contour);
                         var x = (int)(moment.M10 / moment.M00);
                         var y = (int)(moment.M01 / moment.M00);
@@ -270,7 +274,7 @@ namespace SampleSegmenter.Services
                 }
             }
             IsImageLoaded = true;
-            Information = "Done";
+            Information = Information + " - Done";
         }
     }
 }
