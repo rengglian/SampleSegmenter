@@ -52,7 +52,7 @@ namespace SampleSegmenter.Dialogs.ViewModels
 
         private string fileName;
 
-        private List<DataPoint> _histogramValues = new();
+        private List<List<float>> _histogramValues = new();
 
         public event Action<IDialogResult> RequestClose;
 
@@ -88,9 +88,10 @@ namespace SampleSegmenter.Dialogs.ViewModels
 
             Title = @"Histogram of " + fileName;
 
-            _histogramValues = contoursInfo.GroupBy(c => c.CentroidY / 100).OrderBy(g => g.Key).Select(groups => new DataPoint(groups.Key * 100, groups.Count())).ToList();
 
-            PlotModelHisto = PlotModelHelper.ColumnSeries(_histogramValues, fileName);
+            _histogramValues = contoursInfo.Select(list => list.HistogramValues).ToList();
+
+            PlotModelHisto = PlotModelHelper.LineSeries(_histogramValues, fileName);
 
             string header = "X\tY\tArea\tCircumference\n";
             string result = string.Join(Environment.NewLine, contoursInfo);

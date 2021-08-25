@@ -127,8 +127,6 @@
                     <Button Grid.Row="0" Grid.Column="0" Content="Vertical Distribution" Command="{Binding ShowVerticalDistributionCommand}"/>
                     <Button Grid.Row="0" Grid.Column="1" Content="Contour Histograms" Command="{Binding ShowHistogramCommand}"/>
                 </Grid>
-                
-
             </Grid>
         </GroupBox>
 
@@ -154,7 +152,6 @@
                 <TextBlock Grid.Row="0" Grid.Column="6" Text="Search Window Size:"/>
                 <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding DenoiseOptions.SearchWindowSize}"/>
                 <Button Grid.Row="0" Grid.Column="8" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding DenoiseOptions}" Content="Set"/>
-
             </Grid>
         </GroupBox>
 
