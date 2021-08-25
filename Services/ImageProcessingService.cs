@@ -7,6 +7,7 @@ using SampleSegmenter.Models;
 using SampleSegmenter.Options;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
@@ -235,6 +236,7 @@ namespace SampleSegmenter.Services
 
             _contoursInfo.Clear();
             int counter = 0;
+
             foreach (HierarchyIndex hi in hierarchyIndexes)
             {
                 var contourIndex = hi.Next;
@@ -267,12 +269,39 @@ namespace SampleSegmenter.Services
                             hierarchy: hierarchyIndexes,
                             maxLevel: int.MaxValue);
 
+                        int[] channels = { 0 };
+                        var hist = new Mat();
+                        int[] hdims = { 256 };
+                        Rangef[] ranges = { new Rangef(0, 256), }; // min/max 
+
+                        using var hist_mask = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
+                        Cv2.DrawContours(hist_mask, contours, contourIndex, new Scalar(255, 255, 255), thickness: -1);
+
+                        Cv2.CalcHist(new Mat[] { _grayscaled }, channels, hist_mask, hist, 1, hdims, ranges);
+
+                        List<float> tmpHistValues = new();
+
+                        for (int j = 0; j < hdims[0]; ++j)
+                        {
+                            tmpHistValues.Add(hist.Get<float>(j));
+                        }
+                        //using var destination_mask = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
+                        //_grayscaled.CopyTo(destination_mask, hist_mask);
+                        //Cv2.ImWrite(@"test_" + contourIndex + ".png", destination_mask);
+
+                        var contourPoly = Cv2.ApproxPolyDP(contours[contourIndex], 3, true);
+                        Cv2.MinEnclosingCircle(contourPoly, out Point2f center, out float radius);
+
                         _contoursInfo.Add(new ContourInfo
                         {
-                            X = x,
-                            Y = y,
-                            Area = area,
-                            Circumference = circumference
+                            CentroidX = x,
+                            CentroidY = y,
+                            CircleX = center.X,
+                            CircleY = center.Y,
+                            CircleRadius = radius,
+                            ContourArea = area,
+                            ContourCircumference = circumference,
+                            HistogramValues = tmpHistValues
                         });
                     }
                 }

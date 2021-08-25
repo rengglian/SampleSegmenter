@@ -4,7 +4,7 @@ namespace SampleSegmenter.Options
 {
     public class EqualizerOptions : BindableBase
     {
-        private bool _isEnabled = true;
+        private bool _isEnabled = false;
         public bool IsEnabled
         {
             get { return _isEnabled; }
