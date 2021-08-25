@@ -7,7 +7,6 @@ using SampleSegmenter.Models;
 using SampleSegmenter.Options;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
@@ -285,9 +284,6 @@ namespace SampleSegmenter.Services
                         {
                             tmpHistValues.Add(hist.Get<float>(j));
                         }
-                        //using var destination_mask = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
-                        //_grayscaled.CopyTo(destination_mask, hist_mask);
-                        //Cv2.ImWrite(@"test_" + contourIndex + ".png", destination_mask);
 
                         var contourPoly = Cv2.ApproxPolyDP(contours[contourIndex], 3, true);
                         Cv2.MinEnclosingCircle(contourPoly, out Point2f center, out float radius);
