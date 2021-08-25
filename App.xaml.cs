@@ -23,7 +23,7 @@ namespace SampleSegmenter
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterManySingleton<OpenFileService>(typeof(IOpenFileService));
-            containerRegistry.RegisterDialog<HistogramDialogView, HistogramDialogViewModel>();
+            containerRegistry.RegisterDialog<VerticalDistributionDialogView, VerticalDistributionDialogViewModel>();
         }
     }
 }
