@@ -116,8 +116,18 @@
                         </Canvas>
                     </Grid>
                 </Viewbox>
-
-                <Button Grid.Row="1" Grid.Column="0" Content="Show Histogram" Command="{Binding ShowHistogramCommand}"/>
+                <Grid Grid.Row="1" Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Button Grid.Row="0" Grid.Column="0" Content="Show Vertical Distribution" Command="{Binding ShowVerticalDistributionCommand}"/>
+                    <Button Grid.Row="0" Grid.Column="1" Content="Show Contour Histograms" Command="{Binding ShowHistogramCommand}"/>
+                </Grid>
+                
 
             </Grid>
         </GroupBox>

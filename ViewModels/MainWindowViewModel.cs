@@ -6,6 +6,7 @@ using SampleSegmenter.Interfaces;
 using SampleSegmenter.Models;
 using SampleSegmenter.Options;
 using SampleSegmenter.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -34,6 +35,7 @@ namespace SampleSegmenter.ViewModels
         
         public DelegateCommand OpenImageCommand { get; }
         public DelegateCommand<object> SetOptionsCommand { get; }
+        public DelegateCommand ShowVerticalDistributionCommand { get; }
         public DelegateCommand ShowHistogramCommand { get; }
 
         public MainWindowViewModel(IOpenFileService openFileService, IDialogService dialogService)
@@ -45,6 +47,7 @@ namespace SampleSegmenter.ViewModels
 
             OpenImageCommand = new DelegateCommand(OpenImageCommandHandler);
             SetOptionsCommand = new DelegateCommand<object>(SetOptionsCommandHandler);
+            ShowVerticalDistributionCommand = new DelegateCommand(ShowVerticalDistributionCommandHandler);
             ShowHistogramCommand = new DelegateCommand(ShowHistogramCommandHandler);
         }
 
@@ -66,9 +69,14 @@ namespace SampleSegmenter.ViewModels
             }
         }
 
+        private void ShowVerticalDistributionCommandHandler()
+        {
+            _dialogService.ShowVerticalDistributionDialog(ImageProcessingService.GetContoursInfo(), OpenFileService.FileNameOnly, r => { });
+        }
+
         private void ShowHistogramCommandHandler()
         {
-            _dialogService.ShowHistogramDialog(ImageProcessingService.GetContoursInfo(), OpenFileService.FileNameOnly, r=> { });
+            
         }
     }
 }

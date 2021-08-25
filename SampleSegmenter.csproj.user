@@ -9,12 +9,12 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Dialogs\Views\HistogramDialogView.xaml.cs">
+    <Compile Update="Dialogs\Views\VerticalDistributionDialogView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Dialogs\Views\HistogramDialogView.xaml">
+    <Page Update="Dialogs\Views\VerticalDistributionDialogView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\MainWindow.xaml">

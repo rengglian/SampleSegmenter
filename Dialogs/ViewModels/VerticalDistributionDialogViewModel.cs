@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace SampleSegmenter.Dialogs.ViewModels
 {
-    class HistogramDialogViewModel : BindableBase, IDialogAware
+    class VerticalDistributionDialogViewModel : BindableBase, IDialogAware
     {
         private string _title;
         public string Title
@@ -56,7 +56,7 @@ namespace SampleSegmenter.Dialogs.ViewModels
 
         public event Action<IDialogResult> RequestClose;
 
-        public HistogramDialogViewModel()
+        public VerticalDistributionDialogViewModel()
         {
             HistogramWidth = 600;
             HistogramHeight = 500;
@@ -89,7 +89,7 @@ namespace SampleSegmenter.Dialogs.ViewModels
 
             Title = @"Histogram of " + fileName;
 
-            _histogramValues = contoursInfo.GroupBy(c => c.Y / 100).OrderBy(g => g.Key).Select(groups => new DataPoint( groups.Key * 100, groups.Count()) ).ToList();
+            _histogramValues = contoursInfo.GroupBy(c => c.CentroidY / 100).OrderBy(g => g.Key).Select(groups => new DataPoint( groups.Key * 100, groups.Count()) ).ToList();
 
             PlotModelHisto = PlotModelHelper.ColumnSeries(_histogramValues, fileName);
 
