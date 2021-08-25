@@ -236,6 +236,8 @@ namespace SampleSegmenter.Services
             _contoursInfo.Clear();
             int counter = 0;
 
+            var circlesCenter = new List<Point2f>();
+
             foreach (HierarchyIndex hi in hierarchyIndexes)
             {
                 var contourIndex = hi.Next;
@@ -288,12 +290,15 @@ namespace SampleSegmenter.Services
                         var contourPoly = Cv2.ApproxPolyDP(contours[contourIndex], 3, true);
                         Cv2.MinEnclosingCircle(contourPoly, out Point2f center, out float radius);
 
+                        circlesCenter.Add(center);
+
                         _contoursInfo.Add(new ContourInfo
                         {
+                            ContourName = contourIndex.ToString(),
                             CentroidX = x,
                             CentroidY = y,
-                            CircleX = center.X,
-                            CircleY = center.Y,
+                            CircleX = center.X - _orig.Width / 2.0f,
+                            CircleY = center.Y - _orig.Height / 2.0f,
                             CircleRadius = radius,
                             ContourArea = area,
                             ContourCircumference = circumference,
@@ -302,6 +307,23 @@ namespace SampleSegmenter.Services
                     }
                 }
             }
+
+            var summaryPoly = Cv2.ApproxPolyDP(circlesCenter, 3, true);
+            Cv2.MinEnclosingCircle(summaryPoly, out Point2f summaryCenter, out float summaryRadius);
+
+            _contoursInfo.Add(new ContourInfo
+            {
+                ContourName = "Summary",
+                CentroidX = 0,
+                CentroidY = 0,
+                CircleX = summaryCenter.X - _orig.Width / 2.0f,
+                CircleY = summaryCenter.Y - _orig.Height / 2.0f,
+                CircleRadius = summaryRadius,
+                ContourArea = 0.0,
+                ContourCircumference = 0.0,
+                HistogramValues = new()
+            });
+
             IsImageLoaded = true;
             Information = Information + " - Done";
         }

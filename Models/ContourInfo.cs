@@ -5,6 +5,7 @@ namespace SampleSegmenter.Models
 {
     public class ContourInfo
     {
+        public string ContourName { get; set; }
         public int CentroidX { get; set; }
         public int CentroidY { get; set; }
         public double ContourArea { get; set; }
@@ -16,7 +17,7 @@ namespace SampleSegmenter.Models
 
         public override string ToString()
         {
-            return @"" + CentroidX + "\t" + CentroidY + "\t" + Math.Round(ContourArea, 2) + "\t" + Math.Round(ContourCircumference, 2);
+            return @"" + ContourName + "\t" + CentroidX + "\t" + CentroidY + "\t" + Math.Round(ContourArea, 2) + "\t" + Math.Round(ContourCircumference, 2) + "\t" + Math.Round(CircleX, 2) + "\t" + Math.Round(CircleY, 2) + "\t" + Math.Round(CircleRadius, 2);
         }
     }
 }
