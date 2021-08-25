@@ -124,8 +124,8 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Button Grid.Row="0" Grid.Column="0" Content="Show Vertical Distribution" Command="{Binding ShowVerticalDistributionCommand}"/>
-                    <Button Grid.Row="0" Grid.Column="1" Content="Show Contour Histograms" Command="{Binding ShowHistogramCommand}"/>
+                    <Button Grid.Row="0" Grid.Column="0" Content="Vertical Distribution" Command="{Binding ShowVerticalDistributionCommand}"/>
+                    <Button Grid.Row="0" Grid.Column="1" Content="Contour Histograms" Command="{Binding ShowHistogramCommand}"/>
                 </Grid>
                 
 

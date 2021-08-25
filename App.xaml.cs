@@ -24,6 +24,7 @@ namespace SampleSegmenter
         {
             containerRegistry.RegisterManySingleton<OpenFileService>(typeof(IOpenFileService));
             containerRegistry.RegisterDialog<VerticalDistributionDialogView, VerticalDistributionDialogViewModel>();
+            containerRegistry.RegisterDialog<ContoursInformationDialogView, ContoursInformationDialogViewModel>();
         }
     }
 }

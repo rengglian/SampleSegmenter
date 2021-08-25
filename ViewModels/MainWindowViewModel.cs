@@ -76,7 +76,7 @@ namespace SampleSegmenter.ViewModels
 
         private void ShowHistogramCommandHandler()
         {
-            
+            _dialogService.ShowContoursInformationDialog(ImageProcessingService.GetContoursInfo(), OpenFileService.FileNameOnly, r => { });
         }
     }
 }

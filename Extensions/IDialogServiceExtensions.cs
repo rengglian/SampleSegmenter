@@ -17,5 +17,17 @@ namespace SampleSegmenter.Extensions
 
             dialogService.ShowDialog("VerticalDistributionDialogView", p, callback);
         }
+
+        public static void ShowContoursInformationDialog(this IDialogService dialogService, List<ContourInfo> contoursInfo, string fileName, Action<IDialogResult> callback)
+        {
+            var p = new DialogParameters
+            {
+                { "contoursInfo", contoursInfo },
+                { "fileName", fileName }
+            };
+
+            dialogService.ShowDialog("ContoursInformationDialogView", p, callback);
+        }
+
     }
 }
