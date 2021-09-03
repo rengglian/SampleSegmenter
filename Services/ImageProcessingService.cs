@@ -7,6 +7,7 @@ using SampleSegmenter.Models;
 using SampleSegmenter.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
@@ -309,6 +310,9 @@ namespace SampleSegmenter.Services
                     }
                 }
             }
+
+            var avgPoint = new Point2f(circlesCenter.Average(t => t.X), circlesCenter.Average(t => t.Y));
+            var ordered = circlesCenter.OrderBy(t => Math.Atan2(avgPoint.Y - t.Y, avgPoint.X - t.X)).ToArray();
 
             var summaryPoly = Cv2.ApproxPolyDP(circlesCenter, 3, true);
             Cv2.MinEnclosingCircle(summaryPoly, out Point2f summaryCenter, out float summaryRadius);
