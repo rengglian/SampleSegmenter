@@ -178,19 +178,21 @@ namespace SampleSegmenter.Services
         private void Mask()
         {
             Information = "Mask Image";
+            using var mask = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
+            using var destination = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
+
             if (_maskOptions.IsEnabled)
             {
-                using var mask = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
-                using var destination = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
                 //Cv2.Circle(mask, _binarized.Width / 2, _binarized.Height/2, _binarized.Height/4, new Scalar(255), -1);
                 Cv2.Rectangle(mask, new Point(_maskOptions.X, _maskOptions.Y), new Point(_maskOptions.X + _maskOptions.Width, _maskOptions.Y + _maskOptions.Height), new Scalar(255, 255, 255), -1);
-                _grayscaled.CopyTo(destination, mask);
-                _masked = destination.Clone();
             }
             else
             {
-                _masked = _grayscaled.Clone();
+                Cv2.Rectangle(mask, new Point(2, 2), new Point(_grayscaled.Width-2, _grayscaled.Height-2), new Scalar(255, 255, 255), -1);
             }
+
+            _grayscaled.CopyTo(destination, mask);
+            _masked = destination.Clone();
 
         }
 

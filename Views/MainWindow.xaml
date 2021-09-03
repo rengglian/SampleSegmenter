@@ -16,6 +16,7 @@
 
             <converters:ImageProcessingStepToEnableConverter x:Key="ImageProcessingStepToEnableConverter"/>
             <converters:ImageProcessingStepToVisibilityConverter x:Key="ImageProcessingStepToVisibilityConverter"/>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
             <Style TargetType="TextBlock">
                 <Setter Property="VerticalAlignment" Value="Center"/>
@@ -104,7 +105,7 @@
                 <Viewbox Grid.Row="0" Grid.Column="0" Margin="5">
                     <Grid>
                         <Image Stretch="None"  Source="{Binding ImageProcessingService.Image}"/>
-                        <Canvas>
+                        <Canvas  Visibility="{Binding MaskOptions.IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <Rectangle
                                 Width="{Binding MaskOptions.Width}"
                                 Height="{Binding MaskOptions.Height}"
