@@ -180,8 +180,8 @@ namespace SampleSegmenter.Services
             Information = "Mask Image";
             if (_maskOptions.IsEnabled)
             {
-                using var mask = new Mat(_binarized.Height, _binarized.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
-                using var destination = new Mat(_binarized.Height, _binarized.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
+                using var mask = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
+                using var destination = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
                 //Cv2.Circle(mask, _binarized.Width / 2, _binarized.Height/2, _binarized.Height/4, new Scalar(255), -1);
                 Cv2.Rectangle(mask, new Point(_maskOptions.X, _maskOptions.Y), new Point(_maskOptions.X + _maskOptions.Width, _maskOptions.Y + _maskOptions.Height), new Scalar(255, 255, 255), -1);
                 _grayscaled.CopyTo(destination, mask);

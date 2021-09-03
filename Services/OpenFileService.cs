@@ -19,7 +19,6 @@ namespace SampleSegmenter.Services
 
         public bool? OpenFile()
         {
-            _openFileDialog.InitialDirectory = "c:\\";
             _openFileDialog.Filter = "Image Files(*.JPEG;*.JPG;*.PNG;*.BMP)|*.JPEG;*.JPG;*.PNG;*.BMP|All files (*.*)|*.*";
             _openFileDialog.FilterIndex = 1;
             _openFileDialog.RestoreDirectory = true;
