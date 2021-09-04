@@ -255,12 +255,14 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Minimum Area:"/>
                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ContoursOptions.MinimumArea}"/>
                 <CheckBox Grid.Row="0" Grid.Column="2" Content="Fill Contours" IsChecked="{Binding ContoursOptions.FillContours}"/>
                 <CheckBox Grid.Row="0" Grid.Column="3" Content="Convex Hull" IsChecked="{Binding ContoursOptions.ConvexHull}"/>
-                <Button Grid.Row="0" Grid.Column="4" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ContoursOptions}" Content="Set"/>
+                <CheckBox Grid.Row="0" Grid.Column="4" Content="Advanced" IsChecked="{Binding ContoursOptions.Advanced}"/>
+                <Button Grid.Row="0" Grid.Column="5" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ContoursOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 
