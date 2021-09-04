@@ -204,7 +204,7 @@ namespace SampleSegmenter.Services
             ThresholdTypes thresholdTypes = _thresholdOptions.Invert ? ThresholdTypes.BinaryInv : ThresholdTypes.Binary;
             if (_thresholdOptions.UseOtsu)
             {
-                thresholdTypes = thresholdTypes | ThresholdTypes.Otsu;
+                thresholdTypes |= ThresholdTypes.Otsu;
             }            
 
             _binarized = _masked.Clone();
@@ -233,28 +233,66 @@ namespace SampleSegmenter.Services
             _result = _orig.Clone();
             Cv2.FindContours(_dilated, out Point[][] contours, out HierarchyIndex[] hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
 
-            var rand = new Random();
-            var thickness = _contoursOptions.FillContours ? -1 : 2;
+            List<Point2f> circlesCenter = new();
 
             _contoursInfo.Clear();
-            int counter = 0;
 
-            var circlesCenter = new List<Point2f>();
+            if (_contoursOptions.Advanced)
+            {
+                circlesCenter = AdvancedAnalysis(contours);
+                var avgPoint = new Point2f(_contoursInfo.Average(p => p.CircleX), _contoursInfo.Average(p => p.CircleY));
+                var ordered = _contoursInfo.OrderBy(t => Math.Atan2(avgPoint.Y - t.CircleY, avgPoint.X - t.CircleX)).ToArray();
+
+                var tessf = new Point2f( 1.2f, 2.3f );
+
+                var test = _contoursInfo.SelectMany(o => new Point2f[]{ new Point2f ( o.CircleX, o.CircleY ) }).ToList();
+                var summaryPoly = Cv2.ApproxPolyDP(test, 3, true);
+                Cv2.MinEnclosingCircle(summaryPoly, out Point2f summaryCenter, out float summaryRadius);
+
+                _contoursInfo.Add(new ContourInfo
+                {
+                    ContourName = "Summary",
+                    CentroidX = 0,
+                    CentroidY = 0,
+                    CircleX = summaryCenter.X - _orig.Width / 2.0f,
+                    CircleY = summaryCenter.Y - _orig.Height / 2.0f,
+                    CircleRadius = summaryRadius,
+                    ContourArea = 0.0,
+                    ContourCircumference = 0.0,
+                    HistogramValues = new()
+                });
+            }
+            else
+            {
+                BasicAnalysis(contours, hierarchyIndexes);
+            }
+
+
+            IsImageLoaded = true;
+            Information += " - Done";
+        }
+
+        private void BasicAnalysis(Point[][] contours, HierarchyIndex[] hierarchyIndexes)
+        {
+            var rand = new Random();
+            var thickness = _contoursOptions.FillContours ? -1 : 2;
+            
+            int counter = 0;
 
             foreach (HierarchyIndex hi in hierarchyIndexes)
             {
                 var contourIndex = hi.Next;
 
-                if(hi.Next != -1 && hi.Parent == 0)
+                if (hi.Next != -1 && hi.Parent == 0)
                 {
                     var contour = contours[contourIndex];
-                    if(_contoursOptions.ConvexHull)
+                    if (_contoursOptions.ConvexHull)
                     {
                         contour = Cv2.ConvexHull(contour, true);
                         contours[contourIndex] = contour;
                     }
                     var area = Cv2.ContourArea(contour);
-                    if(area > _contoursOptions.MinimumArea)
+                    if (area > _contoursOptions.MinimumArea)
                     {
                         Information = @"Analyse Contour " + ++counter;
                         Moments moment = Cv2.Moments(contour);
@@ -281,57 +319,91 @@ namespace SampleSegmenter.Services
                         using var hist_mask = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
                         Cv2.DrawContours(hist_mask, contours, contourIndex, new Scalar(255, 255, 255), thickness: -1);
 
-                        Cv2.CalcHist(new Mat[] { _grayscaled }, channels, hist_mask, hist, 1, hdims, ranges);
-
-                        List<float> tmpHistValues = new();
-
-                        for (int j = 0; j < hdims[0]; ++j)
-                        {
-                            tmpHistValues.Add(hist.Get<float>(j));
-                        }
-
-                        var contourPoly = Cv2.ApproxPolyDP(contours[contourIndex], 3, true);
-                        Cv2.MinEnclosingCircle(contourPoly, out Point2f center, out float radius);
-
-                        circlesCenter.Add(center);
-
                         _contoursInfo.Add(new ContourInfo
                         {
                             ContourName = contourIndex.ToString(),
                             CentroidX = x,
                             CentroidY = y,
-                            CircleX = center.X - _orig.Width / 2.0f,
-                            CircleY = center.Y - _orig.Height / 2.0f,
-                            CircleRadius = radius,
+                            CircleX = 0,
+                            CircleY = 0,
+                            CircleRadius = 0,
                             ContourArea = area,
                             ContourCircumference = circumference,
-                            HistogramValues = tmpHistValues
+                            HistogramValues = new()
                         });
                     }
                 }
             }
+        }
 
-            var avgPoint = new Point2f(circlesCenter.Average(t => t.X), circlesCenter.Average(t => t.Y));
-            var ordered = circlesCenter.OrderBy(t => Math.Atan2(avgPoint.Y - t.Y, avgPoint.X - t.X)).ToArray();
+        private List<Point2f> AdvancedAnalysis(Point[][] contours)
+        {
+            var rand = new Random();
+            var thickness = _contoursOptions.FillContours ? -1 : 2;
 
-            var summaryPoly = Cv2.ApproxPolyDP(circlesCenter, 3, true);
-            Cv2.MinEnclosingCircle(summaryPoly, out Point2f summaryCenter, out float summaryRadius);
+            int counter = 0;
 
-            _contoursInfo.Add(new ContourInfo
+            var circlesCenter = new List<Point2f>();
+
+            foreach (var contour in contours)
             {
-                ContourName = "Summary",
-                CentroidX = 0,
-                CentroidY = 0,
-                CircleX = summaryCenter.X - _orig.Width / 2.0f,
-                CircleY = summaryCenter.Y - _orig.Height / 2.0f,
-                CircleRadius = summaryRadius,
-                ContourArea = 0.0,
-                ContourCircumference = 0.0,
-                HistogramValues = new()
-            });
+                var area = Cv2.ContourArea(contour);
+                if (area > _contoursOptions.MinimumArea)
+                {
+                    Information = @"Analyse Contour " + ++counter;
+                    Moments moment = Cv2.Moments(contour);
+                    var x = (int)(moment.M10 / moment.M00);
+                    var y = (int)(moment.M01 / moment.M00);
 
-            IsImageLoaded = true;
-            Information = Information + " - Done";
+                    double circumference = Cv2.ArcLength(contour, true);
+                    var randomColor = new Scalar(rand.Next(0, 255), rand.Next(0, 255), rand.Next(0, 255), 255);
+
+                    Cv2.DrawContours(
+                        _result,
+                        new[] { contour },
+                        0,
+                        color: randomColor,
+                        thickness: thickness,
+                        lineType: LineTypes.Link8);
+
+                    int[] channels = { 0 };
+                    var hist = new Mat();
+                    int[] hdims = { 256 };
+                    Rangef[] ranges = { new Rangef(0, 256), }; // min/max 
+
+                    using var hist_mask = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
+                    Cv2.DrawContours(hist_mask, new[] { contour }, 0, new Scalar(255, 255, 255), thickness: -1);
+
+                    Cv2.CalcHist(new Mat[] { _grayscaled }, channels, hist_mask, hist, 1, hdims, ranges);
+
+                    List<float> tmpHistValues = new();
+
+                    for (int j = 0; j < hdims[0]; ++j)
+                    {
+                        tmpHistValues.Add(hist.Get<float>(j));
+                    }
+
+                    var contourPoly = Cv2.ApproxPolyDP(contour, 3, true);
+                    Cv2.MinEnclosingCircle(contourPoly, out Point2f center, out float radius);
+
+                    circlesCenter.Add(center);
+
+                    _contoursInfo.Add(new ContourInfo
+                    {
+                        ContourName = $"{counter}",
+                        CentroidX = x,
+                        CentroidY = y,
+                        CircleX = center.X - _orig.Width / 2.0f,
+                        CircleY = center.Y - _orig.Height / 2.0f,
+                        CircleRadius = radius,
+                        ContourArea = area,
+                        ContourCircumference = circumference,
+                        HistogramValues = tmpHistValues
+                    });
+                }
+            }
+
+            return circlesCenter;
         }
     }
 }
