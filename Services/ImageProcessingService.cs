@@ -23,7 +23,7 @@ namespace SampleSegmenter.Services
         private Mat _dilated;
         private Mat _result;
 
-        private readonly List<ContourInfo> _contoursInfo;
+        private List<IContourInfo> _contoursInfo;
 
         private EqualizerOptions _equalizerOptions;
         private DenoiseOptions _denoiseOptions;
@@ -82,7 +82,7 @@ namespace SampleSegmenter.Services
             Update();
         }
 
-        public List<ContourInfo> GetContoursInfo()
+        public List<IContourInfo> GetContoursInfo()
         {
             return _contoursInfo;
         }
@@ -233,47 +233,24 @@ namespace SampleSegmenter.Services
             _result = _orig.Clone();
             Cv2.FindContours(_dilated, out Point[][] contours, out HierarchyIndex[] hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
 
-            List<Point2f> circlesCenter = new();
-
             _contoursInfo.Clear();
 
             if (_contoursOptions.Advanced)
             {
-                circlesCenter = AdvancedAnalysis(contours);
-                var avgPoint = new Point2f(_contoursInfo.Average(p => p.CircleX), _contoursInfo.Average(p => p.CircleY));
-                var ordered = _contoursInfo.OrderBy(t => Math.Atan2(avgPoint.Y - t.CircleY, avgPoint.X - t.CircleX)).ToArray();
-
-                var tessf = new Point2f( 1.2f, 2.3f );
-
-                var test = _contoursInfo.SelectMany(o => new Point2f[]{ new Point2f ( o.CircleX, o.CircleY ) }).ToList();
-                var summaryPoly = Cv2.ApproxPolyDP(test, 3, true);
-                Cv2.MinEnclosingCircle(summaryPoly, out Point2f summaryCenter, out float summaryRadius);
-
-                _contoursInfo.Add(new ContourInfo
-                {
-                    ContourName = "Summary",
-                    CentroidX = 0,
-                    CentroidY = 0,
-                    CircleX = summaryCenter.X - _orig.Width / 2.0f,
-                    CircleY = summaryCenter.Y - _orig.Height / 2.0f,
-                    CircleRadius = summaryRadius,
-                    ContourArea = 0.0,
-                    ContourCircumference = 0.0,
-                    HistogramValues = new()
-                });
+                _contoursInfo = AdvancedAnalysis(contours);
             }
             else
             {
-                BasicAnalysis(contours, hierarchyIndexes);
+                _contoursInfo = BasicAnalysis(contours, hierarchyIndexes);
             }
-
 
             IsImageLoaded = true;
             Information += " - Done";
         }
 
-        private void BasicAnalysis(Point[][] contours, HierarchyIndex[] hierarchyIndexes)
+        private List<IContourInfo> BasicAnalysis(Point[][] contours, HierarchyIndex[] hierarchyIndexes)
         {
+            List<IContourInfo> contoursInfo = new();
             var rand = new Random();
             var thickness = _contoursOptions.FillContours ? -1 : 2;
             
@@ -319,24 +296,21 @@ namespace SampleSegmenter.Services
                         using var hist_mask = new Mat(_grayscaled.Height, _grayscaled.Width, MatType.CV_8UC1, new Scalar(0, 0, 0));
                         Cv2.DrawContours(hist_mask, contours, contourIndex, new Scalar(255, 255, 255), thickness: -1);
 
-                        _contoursInfo.Add(new ContourInfo
+                        contoursInfo.Add(new ContourInfoBasic
                         {
                             ContourName = contourIndex.ToString(),
                             CentroidX = x,
                             CentroidY = y,
-                            CircleX = 0,
-                            CircleY = 0,
-                            CircleRadius = 0,
                             ContourArea = area,
-                            ContourCircumference = circumference,
-                            HistogramValues = new()
+                            ContourCircumference = circumference
                         });
                     }
                 }
             }
+            return contoursInfo;
         }
 
-        private List<Point2f> AdvancedAnalysis(Point[][] contours)
+        private List<IContourInfo> AdvancedAnalysis(Point[][] contours)
         {
             var rand = new Random();
             var thickness = _contoursOptions.FillContours ? -1 : 2;
@@ -344,6 +318,8 @@ namespace SampleSegmenter.Services
             int counter = 0;
 
             var circlesCenter = new List<Point2f>();
+
+            List<IContourInfo> contoursInfo = new();
 
             foreach (var contour in contours)
             {
@@ -388,7 +364,7 @@ namespace SampleSegmenter.Services
 
                     circlesCenter.Add(center);
 
-                    _contoursInfo.Add(new ContourInfo
+                    contoursInfo.Add(new ContourInfoAdvanced
                     {
                         ContourName = $"{counter}",
                         CentroidX = x,
@@ -396,6 +372,7 @@ namespace SampleSegmenter.Services
                         CircleX = center.X - _orig.Width / 2.0f,
                         CircleY = center.Y - _orig.Height / 2.0f,
                         CircleRadius = radius,
+                        DistanceToCenter = new Point2f(center.X - _orig.Width / 2.0f, center.Y - _orig.Height / 2.0f).DistanceTo(new Point2f(0.0f, 0.0f)),
                         ContourArea = area,
                         ContourCircumference = circumference,
                         HistogramValues = tmpHistValues
@@ -403,7 +380,30 @@ namespace SampleSegmenter.Services
                 }
             }
 
-            return circlesCenter;
+            var contoursInfoAdvanced = contoursInfo.Cast<ContourInfoAdvanced>().ToList();
+
+            var avgPoint = new Point2f(contoursInfoAdvanced.Average(p => p.CircleX), contoursInfoAdvanced.Average(p => p.CircleY));
+            var ordered = contoursInfoAdvanced.OrderBy(t => Math.Atan2(avgPoint.Y - t.CircleY, avgPoint.X - t.CircleX)).ToList();
+
+            var centers = ordered.SelectMany(o => new Point2f[] { new Point2f(o.CircleX, o.CircleY) }).ToList();
+            var summaryPoly = Cv2.ApproxPolyDP(centers, 3, true);
+            Cv2.MinEnclosingCircle(summaryPoly, out Point2f summaryCenter, out float summaryRadius);
+
+            ordered.Add(new ContourInfoAdvanced
+            {
+                ContourName = "Summary",
+                CentroidX = 0,
+                CentroidY = 0,
+                CircleX = summaryCenter.X,
+                CircleY = summaryCenter.Y,
+                CircleRadius = summaryRadius,
+                DistanceToCenter = new Point2f(summaryCenter.X, summaryCenter.Y).DistanceTo(new Point2f(0.0f, 0.0f)),
+                ContourArea = 0.0,
+                ContourCircumference = 0.0,
+                HistogramValues = new()
+            });
+
+            return ordered.Cast<IContourInfo>().ToList();
         }
     }
 }

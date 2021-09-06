@@ -1,5 +1,5 @@
 ﻿using Prism.Services.Dialogs;
-using SampleSegmenter.Models;
+using SampleSegmenter.Interfaces;
 using System;
 using System.Collections.Generic;
 
@@ -7,7 +7,7 @@ namespace SampleSegmenter.Extensions
 {
     public static class IDialogServiceExtensions
     {
-        public static void ShowVerticalDistributionDialog(this IDialogService dialogService, List<ContourInfo> contoursInfo, string fileName, Action<IDialogResult> callback)
+        public static void ShowVerticalDistributionDialog(this IDialogService dialogService, List<IContourInfo> contoursInfo, string fileName, Action<IDialogResult> callback)
         {
             var p = new DialogParameters
             {
@@ -18,7 +18,7 @@ namespace SampleSegmenter.Extensions
             dialogService.ShowDialog("VerticalDistributionDialogView", p, callback);
         }
 
-        public static void ShowContoursInformationDialog(this IDialogService dialogService, List<ContourInfo> contoursInfo, string fileName, Action<IDialogResult> callback)
+        public static void ShowContoursInformationDialog(this IDialogService dialogService, List<IContourInfo> contoursInfo, string fileName, Action<IDialogResult> callback)
         {
             var p = new DialogParameters
             {

@@ -3,6 +3,7 @@ using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using SampleSegmenter.Helper;
+using SampleSegmenter.Interfaces;
 using SampleSegmenter.Models;
 using System;
 using System.Collections.Generic;
@@ -83,7 +84,7 @@ namespace SampleSegmenter.Dialogs.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            var contoursInfo = parameters.GetValue<List<ContourInfo>>("contoursInfo");
+            var contoursInfo = parameters.GetValue<List<IContourInfo>>("contoursInfo").Cast<ContourInfoAdvanced>();
             fileName = parameters.GetValue<string>("fileName");
 
             Title = @"Histogram of " + fileName;
