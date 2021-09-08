@@ -17,9 +17,17 @@ namespace SampleSegmenter.Models
         public double DistanceToCenter { get; set; }
         public List<float> HistogramValues { get; set; }
 
+        public string GetHeader() => $"{nameof(ContourName)}\t{nameof(CentroidX)}\t{nameof(CentroidY)}" +
+            $"\t{nameof(ContourArea)}\t{nameof(ContourCircumference)}" +
+            $"\t{nameof(CircleX)}\t{nameof(CircleY)}" +
+            $"\t{nameof(CircleRadius)}\t{nameof(DistanceToCenter)}\n";
+
         public override string ToString()
         {
-            return @"" + ContourName + "\t" + CentroidX + "\t" + CentroidY + "\t" + Math.Round(ContourArea, 2) + "\t" + Math.Round(ContourCircumference, 2) + "\t" + Math.Round(CircleX, 2) + "\t" + Math.Round(CircleY, 2) + "\t" + Math.Round(CircleRadius, 2) + "\t" + Math.Round(DistanceToCenter, 2);
+            return $"{ContourName}\t{CentroidX}\t{CentroidY}" +
+                $"\t{Math.Round(ContourArea, 2)}\t{Math.Round(ContourCircumference)}" +
+                $"\t{Math.Round(CircleX, 2)}\t{Math.Round(CircleY, 2)}" +
+                $"\t{Math.Round(CircleRadius, 2)}\t{Math.Round(DistanceToCenter, 2)}";
         }
     }
 }

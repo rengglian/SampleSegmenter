@@ -94,7 +94,7 @@ namespace SampleSegmenter.Dialogs.ViewModels
 
             PlotModelHisto = PlotModelHelper.LineSeries(_histogramValues, fileName);
 
-            string header = "X\tY\tArea\tCircumference\tx\ty\tradius\n";
+            string header = contoursInfo.First().GetHeader();
             string result = string.Join(Environment.NewLine, contoursInfo);
             ContoursInfo = header + result;
         }
