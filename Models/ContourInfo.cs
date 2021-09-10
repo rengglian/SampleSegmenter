@@ -1,17 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SampleSegmenter.Models
 {
     public class ContourInfo
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public double Area { get; set; }
-        public double Circumference { get; set; }
+        public string ContourName { get; set; }
+        public int CentroidX { get; set; }
+        public int CentroidY { get; set; }
+        public double ContourArea { get; set; }
+        public double ContourCircumference { get; set; }
+        public float CircleX { get; set; }
+        public float CircleY { get; set; }
+        public double CircleRadius { get; set; }
+        public List<float> HistogramValues { get; set; }
 
         public override string ToString()
         {
-            return @"" + X + "\t" + Y + "\t" + Math.Round(Area, 2) + "\t" + Math.Round(Circumference, 2);
+            return @"" + ContourName + "\t" + CentroidX + "\t" + CentroidY + "\t" + Math.Round(ContourArea, 2) + "\t" + Math.Round(ContourCircumference, 2) + "\t" + Math.Round(CircleX, 2) + "\t" + Math.Round(CircleY, 2) + "\t" + Math.Round(CircleRadius, 2);
         }
     }
 }

@@ -124,11 +124,9 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Button Grid.Row="0" Grid.Column="0" Content="Show Vertical Distribution" Command="{Binding ShowVerticalDistributionCommand}"/>
-                    <Button Grid.Row="0" Grid.Column="1" Content="Show Contour Histograms" Command="{Binding ShowHistogramCommand}"/>
+                    <Button Grid.Row="0" Grid.Column="0" Content="Vertical Distribution" Command="{Binding ShowVerticalDistributionCommand}"/>
+                    <Button Grid.Row="0" Grid.Column="1" Content="Contour Histograms" Command="{Binding ShowHistogramCommand}"/>
                 </Grid>
-                
-
             </Grid>
         </GroupBox>
 
@@ -154,7 +152,6 @@
                 <TextBlock Grid.Row="0" Grid.Column="6" Text="Search Window Size:"/>
                 <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding DenoiseOptions.SearchWindowSize}"/>
                 <Button Grid.Row="0" Grid.Column="8" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding DenoiseOptions}" Content="Set"/>
-
             </Grid>
         </GroupBox>
 
@@ -169,7 +166,30 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="4" Grid.Column="0" Header="Mask Options">
+        <GroupBox Grid.Row="4" Grid.Column="0" Header="Threshold Options">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Threshold"/>
+                <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="255" TickFrequency="10" Value="{Binding ThresholdOptions.ThresholdValue}"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ThresholdOptions.ThresholdValue, StringFormat=N0}"/>
+                <TextBlock Grid.Row="0" Grid.Column="3" Text="Max Value:"/>
+                <TextBox Grid.Row="0" Grid.Column="4" Text="{Binding ThresholdOptions.MaxValue}"/>
+                <CheckBox Grid.Row="0" Grid.Column="5" Content="Invert" IsChecked="{Binding ThresholdOptions.Invert}"/>
+                <CheckBox Grid.Row="0" Grid.Column="6" Content="Use Otsu" IsChecked="{Binding ThresholdOptions.UseOtsu}"/>
+                <Button Grid.Row="0" Grid.Column="7" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ThresholdOptions}" Content="Set"/>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="5" Grid.Column="0" Header="Mask Options">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -193,30 +213,6 @@
                 <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding MaskOptions.Height}"/>
                 <CheckBox Grid.Row="0" Grid.Column="8" Content="Enable Mask" IsChecked="{Binding MaskOptions.IsEnabled}"/>
                 <Button Grid.Row="0" Grid.Column="9" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding MaskOptions}" Content="Set"/>
-
-            </Grid>
-        </GroupBox>
-
-        <GroupBox Grid.Row="5" Grid.Column="0" Header="Threshold Options">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Threshold"/>
-                <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="255" TickFrequency="10" Value="{Binding ThresholdOptions.ThresholdValue}"/>
-                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ThresholdOptions.ThresholdValue, StringFormat=N0}"/>
-                <TextBlock Grid.Row="0" Grid.Column="3" Text="Max Value:"/>
-                <TextBox Grid.Row="0" Grid.Column="4" Text="{Binding ThresholdOptions.MaxValue}"/>
-                <CheckBox Grid.Row="0" Grid.Column="5" Content="Invert" IsChecked="{Binding ThresholdOptions.Invert}"/>
-                <CheckBox Grid.Row="0" Grid.Column="6" Content="Use Otsu" IsChecked="{Binding ThresholdOptions.UseOtsu}"/>
-                <Button Grid.Row="0" Grid.Column="7" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ThresholdOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 

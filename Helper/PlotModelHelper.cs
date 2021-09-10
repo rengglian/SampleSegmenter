@@ -1,10 +1,12 @@
 ﻿using OxyPlot;
 using OxyPlot.Axes;
+using OxyPlot.Legends;
 using OxyPlot.Series;
 using OxyPlot.Wpf;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SampleSegmenter.Helper
 {
@@ -12,16 +14,16 @@ namespace SampleSegmenter.Helper
     {
         public static PlotModel ColumnSeries(List<DataPoint> histogramPoints, string title = "")
         {
-            var model = new PlotModel();
+            var plotModel = new PlotModel();
 
-            var barSeries = new OxyPlot.Series.BarSeries()
+            var barSeries = new BarSeries()
             {
                 LabelPlacement = LabelPlacement.Inside,
                 LabelFormatString = "{0}",
                 LabelMargin = 5
             };
 
-            var categoryAxis = new OxyPlot.Axes.CategoryAxis
+            var categoryAxis = new CategoryAxis
             {
                 Position = AxisPosition.Left,
                 StartPosition = 1,
@@ -34,15 +36,40 @@ namespace SampleSegmenter.Helper
                 categoryAxis.Labels.Add(histogramPoint.X.ToString());
             }
 
-            model.Title = title;
+            plotModel.Title = title;
+            plotModel.Series.Add(barSeries);
+            plotModel.Axes.Add(categoryAxis);
 
-            model.Series.Add(barSeries);
+            return plotModel;
+        }
 
-            model.Axes.Add(categoryAxis);
+        public static PlotModel LineSeries(List<List<float>> histogramLists, string title= "")
+        {
+            var plotModel = new PlotModel();
 
+            plotModel.Legends.Add(new Legend
+            {
+                LegendTitle = @"Legend",
+                LegendPosition = LegendPosition.TopRight
+            });
 
+            for(int i = 0; i < histogramLists.Count(); i++)
+            {
+                plotModel.Series.Add(new LineSeries
+                {
+                    LineStyle = LineStyle.Solid,
+                    Title = i.ToString()
+                });
 
-            return model;
+                for (int j = 0; j < histogramLists[i].Count(); j++)
+                {
+                    ((LineSeries)plotModel.Series[i]).Points.Add(new DataPoint(j, histogramLists[i][j]));
+                }
+            }
+
+            plotModel.Title = title;
+
+            return plotModel;
         }
 
         static public void ExportData(PlotModel plotModel, int width, int heigt, string description = "", string contoursInfo = "")
@@ -50,9 +77,9 @@ namespace SampleSegmenter.Helper
             DateTime dateAndTime = DateTime.Now;
             var path = @".\\Logs\\";
 
-            _ = System.IO.Directory.CreateDirectory(path);
+            _ = Directory.CreateDirectory(path);
 
-            string fileDescription = String.IsNullOrEmpty(description) ? "" : "_" + description;
+            string fileDescription = string.IsNullOrEmpty(description) ? "" : "_" + description;
 
             var filename = @"" + dateAndTime.ToString("yyyMMdd") + "_" + dateAndTime.ToString("HHmmss") + fileDescription;
 
