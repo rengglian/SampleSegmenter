@@ -5,8 +5,8 @@
         Orignal,
         Denoised,
         Grayscaled,
-        Masked,
         Binarized,
+        Masked,
         Dilated,
         Result
     }
