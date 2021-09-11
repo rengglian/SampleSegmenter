@@ -20,8 +20,8 @@ namespace SampleSegmenter.ViewModels
         private IImageProcessingService _imageProcessingService;
         public IImageProcessingService ImageProcessingService 
         {
-            get { return _imageProcessingService; }
-            set { SetProperty(ref _imageProcessingService, value); }
+            get => _imageProcessingService ??= new ImageProcessingService();
+            set => SetProperty(ref _imageProcessingService, value);
         }
 
         private ImageFromFile _imageFromFile;
@@ -32,29 +32,27 @@ namespace SampleSegmenter.ViewModels
         public ThresholdOptions ThresholdOptions { get; set; } = new();
         public ContoursOptions ContoursOptions { get; set; } = new();
         public DilateOptions DilateOptions { get; set; } = new();
-        
-        public DelegateCommand OpenImageCommand { get; }
-        public DelegateCommand<object> SetOptionsCommand { get; }
-        public DelegateCommand ShowVerticalDistributionCommand { get; }
-        public DelegateCommand ShowHistogramCommand { get; }
+
+        private DelegateCommand _openImageCommand;
+        public DelegateCommand OpenImageCommand => _openImageCommand ??= new (OpenImageCommandHandler);
+
+        private DelegateCommand _showVerticalDistributionCommand;
+        public DelegateCommand ShowVerticalDistributionCommand => _showVerticalDistributionCommand ??= new(ShowVerticalDistributionCommandHandler);
+
+        private DelegateCommand _showHistogramCommand;
+        public DelegateCommand ShowHistogramCommand => _showHistogramCommand ??= new(ShowHistogramCommandHandler);
+
+        private DelegateCommand<object> _setOptionsCommand;
+        public DelegateCommand<object> SetOptionsCommand => _setOptionsCommand ??= new DelegateCommand<object>(SetOptionsCommandHandler);
 
         public MainWindowViewModel(IOpenFileService openFileService, IDialogService dialogService)
         {
             OpenFileService = openFileService;
             _dialogService = dialogService;
-            
-            ImageProcessingService = new ImageProcessingService();
-
-            OpenImageCommand = new DelegateCommand(OpenImageCommandHandler);
-            SetOptionsCommand = new DelegateCommand<object>(SetOptionsCommandHandler);
-            ShowVerticalDistributionCommand = new DelegateCommand(ShowVerticalDistributionCommandHandler);
-            ShowHistogramCommand = new DelegateCommand(ShowHistogramCommandHandler);
         }
 
         private void SetOptionsCommandHandler(object options)
-        {
-            ImageProcessingService.SetOptions(options);
-        }
+            => ImageProcessingService.SetOptions(options);
 
         private void OpenImageCommandHandler()
         {
@@ -70,13 +68,9 @@ namespace SampleSegmenter.ViewModels
         }
 
         private void ShowVerticalDistributionCommandHandler()
-        {
-            _dialogService.ShowVerticalDistributionDialog(ImageProcessingService.GetContoursInfo(), OpenFileService.FileNameOnly, r => { });
-        }
+            => _dialogService.ShowVerticalDistributionDialog(ImageProcessingService.GetContoursInfo(), OpenFileService.FileNameOnly, r => { });
 
         private void ShowHistogramCommandHandler()
-        {
-            _dialogService.ShowContoursInformationDialog(ImageProcessingService.GetContoursInfo(), OpenFileService.FileNameOnly, r => { });
-        }
+            => _dialogService.ShowContoursInformationDialog(ImageProcessingService.GetContoursInfo(), OpenFileService.FileNameOnly, r => { });
     }
 }

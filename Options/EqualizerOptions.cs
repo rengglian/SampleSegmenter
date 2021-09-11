@@ -7,8 +7,8 @@ namespace SampleSegmenter.Options
         private bool _isEnabled = false;
         public bool IsEnabled
         {
-            get { return _isEnabled; }
-            set { SetProperty(ref _isEnabled, value); }
+            get => _isEnabled;
+            set => SetProperty(ref _isEnabled, value);
         }
     }
 }
