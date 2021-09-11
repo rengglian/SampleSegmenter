@@ -35,14 +35,14 @@ namespace SampleSegmenter.Services
         private ImageSource _image;
         public ImageSource Image
         {
-            get { return _image; }
-            set { SetProperty(ref _image, value); }
+            get => _image;
+            set => SetProperty(ref _image, value);
         }
 
         private ImageProcessingSteps _selectedImageProcessingStep = ImageProcessingSteps.Result;
         public ImageProcessingSteps SelectedImageProcessingStep
         {
-            get { return _selectedImageProcessingStep; }
+            get => _selectedImageProcessingStep;
             set
             {
                 SetProperty(ref _selectedImageProcessingStep, value);
@@ -53,15 +53,15 @@ namespace SampleSegmenter.Services
         private string _information;
         public string Information
         {
-            get { return _information; }
-            set { SetProperty(ref _information, value); }
+            get => _information;
+            set => SetProperty(ref _information, value);
         }
 
         private bool _isImageLoaded;
         public bool IsImageLoaded
         {
-            get { return _isImageLoaded; }
-            set { SetProperty(ref _isImageLoaded, value); }
+            get => _isImageLoaded;
+            set => SetProperty(ref _isImageLoaded, value);
         }
 
         public ImageProcessingService()
@@ -83,9 +83,7 @@ namespace SampleSegmenter.Services
         }
 
         public List<IContourInfo> GetContoursInfo()
-        {
-            return _contoursInfo;
-        }
+            => _contoursInfo;
 
         public void SetOptions<T>(T options)
         {
@@ -160,11 +158,11 @@ namespace SampleSegmenter.Services
             Information = "Denoise Image";
             _denoised = _orig.Clone();
             Cv2.FastNlMeansDenoisingColored(
-                _orig, 
-                _denoised, 
-                _denoiseOptions.H, 
-                _denoiseOptions.HColor, 
-                _denoiseOptions.TemplateWindowSize, 
+                _orig,
+                _denoised,
+                _denoiseOptions.H,
+                _denoiseOptions.HColor,
+                _denoiseOptions.TemplateWindowSize,
                 _denoiseOptions.TemplateWindowSize);
         }
 
@@ -189,7 +187,7 @@ namespace SampleSegmenter.Services
             }
             else
             {
-                Cv2.Rectangle(mask, new Point(2, 2), new Point(_grayscaled.Width-2, _grayscaled.Height-2), new Scalar(255, 255, 255), -1);
+                Cv2.Rectangle(mask, new Point(2, 2), new Point(_grayscaled.Width - 2, _grayscaled.Height - 2), new Scalar(255, 255, 255), -1);
             }
 
             _grayscaled.CopyTo(destination, mask);
@@ -205,7 +203,7 @@ namespace SampleSegmenter.Services
             if (_thresholdOptions.UseOtsu)
             {
                 thresholdTypes |= ThresholdTypes.Otsu;
-            }            
+            }
 
             _binarized = _masked.Clone();
             Cv2.Threshold(_masked, _binarized, _thresholdOptions.ThresholdValue, _thresholdOptions.MaxValue, thresholdTypes);
@@ -253,7 +251,7 @@ namespace SampleSegmenter.Services
             List<IContourInfo> contoursInfo = new();
             var rand = new Random();
             var thickness = _contoursOptions.FillContours ? -1 : 2;
-            
+
             int counter = 0;
 
             foreach (HierarchyIndex hi in hierarchyIndexes)

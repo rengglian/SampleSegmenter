@@ -7,28 +7,28 @@ namespace SampleSegmenter.Options
         private bool _useOtsu = true;
         public bool UseOtsu
         {
-            get { return _useOtsu; }
-            set { SetProperty(ref _useOtsu, value); }
+            get => _useOtsu;
+            set => SetProperty(ref _useOtsu, value);
         }
 
         private bool _invert = true;
         public bool Invert
         {
-            get { return _invert; }
-            set { SetProperty(ref _invert, value); }
+            get => _invert;
+            set => SetProperty(ref _invert, value);
         }
 
         private double _thresholdValue = 0.0;
         public double ThresholdValue
         {
-            get { return _thresholdValue; }
-            set { SetProperty(ref _thresholdValue, value); }
+            get => _thresholdValue;
+            set => SetProperty(ref _thresholdValue, value);
         }
         private double _maxValue = 255.0;
         public double MaxValue
         {
-            get { return _maxValue; }
-            set { SetProperty(ref _maxValue, value); }
+            get => _maxValue;
+            set => SetProperty(ref _maxValue, value);
         }
     }
 }

@@ -13,8 +13,8 @@ namespace SampleSegmenter.Services
         private string _fileName;
         public string FileName
         {
-            get { return _fileName; }
-            set { SetProperty(ref _fileName, value); }
+            get => _fileName;
+            set => SetProperty(ref _fileName, value);
         }
 
         public bool? OpenFile()
@@ -34,12 +34,12 @@ namespace SampleSegmenter.Services
 
         public string[] FileNames
         {
-            get { return _selectedFileNames; }
+            get => _selectedFileNames;
         }
 
         public string FileNameOnly
         {
-            get { return Path.GetFileNameWithoutExtension(_selectedFileNames[0]); }
+            get => Path.GetFileNameWithoutExtension(_selectedFileNames[0]);
         }
     }
 }

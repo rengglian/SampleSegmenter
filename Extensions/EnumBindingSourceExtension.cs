@@ -8,10 +8,10 @@ namespace SampleSegmenter.Extensions
         private Type _enumType;
         public Type EnumType
         {
-            get { return this._enumType; }
+            get => _enumType;
             set
             {
-                if (value != this._enumType)
+                if (value != _enumType)
                 {
                     if (null != value)
                     {
@@ -20,7 +20,7 @@ namespace SampleSegmenter.Extensions
                             throw new ArgumentException("Type must be for an Enum.");
                     }
 
-                    this._enumType = value;
+                    _enumType = value;
                 }
             }
         }
@@ -28,9 +28,7 @@ namespace SampleSegmenter.Extensions
         public EnumBindingSourceExtension() { }
 
         public EnumBindingSourceExtension(Type enumType)
-        {
-            this.EnumType = enumType;
-        }
+            =>EnumType = enumType;
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {

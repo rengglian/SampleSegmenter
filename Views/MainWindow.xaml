@@ -201,9 +201,9 @@
                 <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding MaskOptions.Height}"/>
                 <CheckBox Grid.Row="0" Grid.Column="8" Content="Enable Mask" IsChecked="{Binding MaskOptions.IsEnabled}"/>
                 <Button Grid.Row="0" Grid.Column="9" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding MaskOptions}" Content="Set"/>
-
             </Grid>
         </GroupBox>
+
 
         <GroupBox Grid.Row="4" Grid.Column="0" Header="Threshold Options">
             <Grid>

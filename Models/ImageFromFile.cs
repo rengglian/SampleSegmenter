@@ -16,13 +16,9 @@ namespace SampleSegmenter.Models
         }
 
         public Mat GetImageMat()
-        {
-            return imageMat.Clone();
-        }
+            => imageMat.Clone();
 
         public string GetFileName()
-        {
-            return _fileName;
-        }
+            => _fileName;
     }
 }

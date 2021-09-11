@@ -16,40 +16,43 @@ namespace SampleSegmenter.Dialogs.ViewModels
         private string _title;
         public string Title
         {
-            get { return _title; }
-            set { SetProperty(ref _title, value); }
+            get => _title;
+            set => SetProperty(ref _title, value);
         }
 
         private PlotModel _plotModelHisto;
         public PlotModel PlotModelHisto
         {
-            get { return _plotModelHisto; }
-            set { SetProperty(ref _plotModelHisto, value); }
+            get => _plotModelHisto ??= new();
+            set => SetProperty(ref _plotModelHisto, value);
         }
 
-        private int _histogramWidth;
+        private int _histogramWidth = 600;
         public int HistogramWidth
         {
-            get { return _histogramWidth; }
-            set { SetProperty(ref _histogramWidth, value); }
+            get => _histogramWidth;
+            set => SetProperty(ref _histogramWidth, value);
         }
 
-        private int _histogramHeight;
+        private int _histogramHeight = 500;
         public int HistogramHeight
         {
-            get { return _histogramHeight; }
-            set { SetProperty(ref _histogramHeight, value); }
+            get => _histogramHeight;
+            set => SetProperty(ref _histogramHeight, value);
         }
 
         private string _contoursInfo;
         public string ContoursInfo
         {
-            get { return _contoursInfo; }
-            set { SetProperty(ref _contoursInfo, value); }
+            get => _contoursInfo;
+            set => SetProperty(ref _contoursInfo, value);
         }
 
-        public DelegateCommand CloseDialogCommand { get; }
-        public DelegateCommand ExportCommand { get; }
+        private DelegateCommand _closeDialogCommand;
+        public DelegateCommand CloseDialogCommand => _closeDialogCommand ??= new(CloseDialogCommandHandler);
+
+        private DelegateCommand _exportCommand;
+        public DelegateCommand ExportCommand => _exportCommand ??= new(ExportCommandHandler);
 
         private string fileName;
 
@@ -57,31 +60,13 @@ namespace SampleSegmenter.Dialogs.ViewModels
 
         public event Action<IDialogResult> RequestClose;
 
-        public VerticalDistributionDialogViewModel()
-        {
-            HistogramWidth = 600;
-            HistogramHeight = 500;
-
-            PlotModelHisto = new();
-
-            CloseDialogCommand = new DelegateCommand(CloseDialogCommandHandler);
-            ExportCommand = new DelegateCommand(ExportCommandHandler);
-        }
-
         private void CloseDialogCommandHandler()
-        {
-            RequestClose?.Invoke(new DialogResult());
-        }
+            => RequestClose?.Invoke(new DialogResult());
 
         public bool CanCloseDialog()
-        {
-            return true;
-        }
-
-        public void OnDialogClosed()
-        {
-            
-        }
+            =>  true;
+        
+        public void OnDialogClosed() { }
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
@@ -100,8 +85,6 @@ namespace SampleSegmenter.Dialogs.ViewModels
         }
 
         private void ExportCommandHandler()
-        {
-            PlotModelHelper.ExportData(PlotModelHisto, HistogramWidth, HistogramHeight, fileName, ContoursInfo);
-        }
+            => PlotModelHelper.ExportData(PlotModelHisto, HistogramWidth, HistogramHeight, fileName, ContoursInfo);
     }
 }
