@@ -72,6 +72,8 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
         <GroupBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Header="Input">
@@ -83,7 +85,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBox Grid.Row="0" Grid.Column="0" Margin="5" Text="{Binding OpenFileService.FileName}" />
+                <TextBox Grid.Row="0" Grid.Column="0" Margin="5" Text="{Binding OpenImageFileService.FileName}" />
                 <Button Grid.Row="0" Grid.Column="1" Margin="5" Command="{Binding OpenImageCommand}" Content="Open File" />
             </Grid>
         </GroupBox>
@@ -115,15 +117,15 @@
                 <Viewbox Grid.Row="0" Grid.Column="0" Margin="5">
                     <Grid>
                         <Image Stretch="None"  Source="{Binding ImageProcessingService.Image}"/>
-                        <Canvas  Visibility="{Binding MaskOptions.IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Canvas  Visibility="{Binding AllOptions.MaskOptions.IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <Rectangle
-                                Width="{Binding MaskOptions.Width}"
-                                Height="{Binding MaskOptions.Height}"
+                                Width="{Binding AllOptions.MaskOptions.Width}"
+                                Height="{Binding AllOptions.MaskOptions.Height}"
                                 Fill="Transparent"
                                 Stroke="Red" 
                                 StrokeThickness="3"
-                                Canvas.Left="{Binding MaskOptions.X}"
-                                Canvas.Top="{Binding MaskOptions.Y}"/>
+                                Canvas.Left="{Binding AllOptions.MaskOptions.X}"
+                                Canvas.Top="{Binding AllOptions.MaskOptions.Y}"/>
                         </Canvas>
                     </Grid>
                 </Viewbox>
@@ -141,7 +143,32 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="1" Grid.Column="0" Header="Denoise Options">
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="Resize Options">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Scale [%]:"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding AllOptions.ResizeOptions.ScalePercentage}"/>
+                <Button Grid.Row="0" Grid.Column="3" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding AllOptions.ResizeOptions}" Content="Set"/>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="2" Grid.Column="0" Header="Grayscale Options">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <CheckBox Grid.Row="0" Grid.Column="0" Content="Enable Histo Equalizer" IsChecked="{Binding AllOptions.EqualizerOptions.IsEnabled}"/>
+                <Button Grid.Row="0" Grid.Column="1" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding AllOptions.EqualizerOptions}" Content="Set"/>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="3" Grid.Column="0" Header="Denoise Options">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -155,29 +182,18 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="H:"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DenoiseOptions.H}"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding AllOptions.DenoiseOptions.H}"/>
                 <TextBlock Grid.Row="0" Grid.Column="2" Text="H Color:"/>
-                <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding DenoiseOptions.HColor}"/>
+                <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding AllOptions.DenoiseOptions.HColor}"/>
                 <TextBlock Grid.Row="0" Grid.Column="4" Text="Template Window Size:"/>
-                <TextBox Grid.Row="0" Grid.Column="5" Text="{Binding DenoiseOptions.TemplateWindowSize}"/>
+                <TextBox Grid.Row="0" Grid.Column="5" Text="{Binding AllOptions.DenoiseOptions.TemplateWindowSize}"/>
                 <TextBlock Grid.Row="0" Grid.Column="6" Text="Search Window Size:"/>
-                <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding DenoiseOptions.SearchWindowSize}"/>
-                <Button Grid.Row="0" Grid.Column="8" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding DenoiseOptions}" Content="Set"/>
+                <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding AllOptions.DenoiseOptions.SearchWindowSize}"/>
+                <Button Grid.Row="0" Grid.Column="8" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding AllOptions.DenoiseOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="2" Grid.Column="0" Header="Grayscale Options">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="auto"/>
-                </Grid.ColumnDefinitions>
-                <CheckBox Grid.Row="0" Grid.Column="0" Content="Enable Histo Equalizer" IsChecked="{Binding EqualizerOptions.IsEnabled}"/>
-                <Button Grid.Row="0" Grid.Column="1" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding EqualizerOptions}" Content="Set"/>
-            </Grid>
-        </GroupBox>
-
-        <GroupBox Grid.Row="3" Grid.Column="0" Header="Mask Options">
+        <GroupBox Grid.Row="4" Grid.Column="0" Header="Mask Options">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -192,20 +208,20 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Start X:"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding MaskOptions.X}"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding AllOptions.MaskOptions.X}"/>
                 <TextBlock Grid.Row="0" Grid.Column="2" Text="Start Y:"/>
-                <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding MaskOptions.Y}"/>
+                <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding AllOptions.MaskOptions.Y}"/>
                 <TextBlock Grid.Row="0" Grid.Column="4" Text="Width:"/>
-                <TextBox Grid.Row="0" Grid.Column="5" Text="{Binding MaskOptions.Width}"/>
+                <TextBox Grid.Row="0" Grid.Column="5" Text="{Binding AllOptions.MaskOptions.Width}"/>
                 <TextBlock Grid.Row="0" Grid.Column="6" Text="Height:"/>
-                <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding MaskOptions.Height}"/>
-                <CheckBox Grid.Row="0" Grid.Column="8" Content="Enable Mask" IsChecked="{Binding MaskOptions.IsEnabled}"/>
-                <Button Grid.Row="0" Grid.Column="9" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding MaskOptions}" Content="Set"/>
+                <TextBox Grid.Row="0" Grid.Column="7" Text="{Binding AllOptions.MaskOptions.Height}"/>
+                <CheckBox Grid.Row="0" Grid.Column="8" Content="Enable Mask" IsChecked="{Binding AllOptions.MaskOptions.IsEnabled}"/>
+                <Button Grid.Row="0" Grid.Column="9" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding AllOptions.MaskOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 
 
-        <GroupBox Grid.Row="4" Grid.Column="0" Header="Threshold Options">
+        <GroupBox Grid.Row="5" Grid.Column="0" Header="Threshold Options">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -218,17 +234,17 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Threshold"/>
-                <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="255" TickFrequency="10" Value="{Binding ThresholdOptions.ThresholdValue}"/>
-                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ThresholdOptions.ThresholdValue, StringFormat=N0}"/>
+                <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="255" TickFrequency="10" Value="{Binding AllOptions.ThresholdOptions.ThresholdValue}"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding AllOptions.ThresholdOptions.ThresholdValue, StringFormat=N0}"/>
                 <TextBlock Grid.Row="0" Grid.Column="3" Text="Max Value:"/>
-                <TextBox Grid.Row="0" Grid.Column="4" Text="{Binding ThresholdOptions.MaxValue}"/>
-                <CheckBox Grid.Row="0" Grid.Column="5" Content="Invert" IsChecked="{Binding ThresholdOptions.Invert}"/>
-                <CheckBox Grid.Row="0" Grid.Column="6" Content="Use Otsu" IsChecked="{Binding ThresholdOptions.UseOtsu}"/>
-                <Button Grid.Row="0" Grid.Column="7" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ThresholdOptions}" Content="Set"/>
+                <TextBox Grid.Row="0" Grid.Column="4" Text="{Binding AllOptions.ThresholdOptions.MaxValue}"/>
+                <CheckBox Grid.Row="0" Grid.Column="5" Content="Invert" IsChecked="{Binding AllOptions.ThresholdOptions.Invert}"/>
+                <CheckBox Grid.Row="0" Grid.Column="6" Content="Use Otsu" IsChecked="{Binding AllOptions.ThresholdOptions.UseOtsu}"/>
+                <Button Grid.Row="0" Grid.Column="7" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding AllOptions.ThresholdOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="5" Grid.Column="0" Header="Dilate Options">
+        <GroupBox Grid.Row="6" Grid.Column="0" Header="Dilate Options">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -239,15 +255,15 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Kernel Size:"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DilateOptions.Size}"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding AllOptions.DilateOptions.Size}"/>
                 <TextBlock Grid.Row="0" Grid.Column="2" Text="Iterations:"/>
-                <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding DilateOptions.Iterations}"/>
-                <CheckBox Grid.Row="0" Grid.Column="4" Content="Enable Dilate" IsChecked="{Binding DilateOptions.IsEnabled}"/>
-                <Button Grid.Row="0" Grid.Column="5" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding DilateOptions}" Content="Set"/>
+                <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding AllOptions.DilateOptions.Iterations}"/>
+                <CheckBox Grid.Row="0" Grid.Column="4" Content="Enable Dilate" IsChecked="{Binding AllOptions.DilateOptions.IsEnabled}"/>
+                <Button Grid.Row="0" Grid.Column="5" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding AllOptions.DilateOptions}" Content="Set"/>
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="6" Grid.Column="0" Header="Contours">
+        <GroupBox Grid.Row="7" Grid.Column="0" Header="Contour Options">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -258,11 +274,24 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Minimum Area:"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ContoursOptions.MinimumArea}"/>
-                <CheckBox Grid.Row="0" Grid.Column="2" Content="Fill Contours" IsChecked="{Binding ContoursOptions.FillContours}"/>
-                <CheckBox Grid.Row="0" Grid.Column="3" Content="Convex Hull" IsChecked="{Binding ContoursOptions.ConvexHull}"/>
-                <CheckBox Grid.Row="0" Grid.Column="4" Content="Advanced" IsChecked="{Binding ContoursOptions.Advanced}"/>
-                <Button Grid.Row="0" Grid.Column="5" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding ContoursOptions}" Content="Set"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding AllOptions.ContoursOptions.MinimumArea}"/>
+                <CheckBox Grid.Row="0" Grid.Column="2" Content="Fill Contours" IsChecked="{Binding AllOptions.ContoursOptions.FillContours}"/>
+                <CheckBox Grid.Row="0" Grid.Column="3" Content="Convex Hull" IsChecked="{Binding AllOptions.ContoursOptions.ConvexHull}"/>
+                <CheckBox Grid.Row="0" Grid.Column="4" Content="Advanced" IsChecked="{Binding AllOptions.ContoursOptions.Advanced}"/>
+                <Button Grid.Row="0" Grid.Column="5" Command="{Binding SetOptionsCommand}" CommandParameter="{Binding AllOptions.ContoursOptions}" Content="Set"/>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="8" Grid.Column="0" Header="Options">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Row="0" Grid.Column="0" Margin="5" Text="{Binding OptionName}" />
+                <Button Grid.Row="0" Grid.Column="1" Command="{Binding SaveOptionsCommand}" Content="Save"/>
+                <Button Grid.Row="0" Grid.Column="2" Command="{Binding LoadOptionsCommand}" Content="Load"/>
             </Grid>
         </GroupBox>
 

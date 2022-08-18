@@ -19,7 +19,8 @@ namespace SampleSegmenter
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterManySingleton<OpenFileService>(typeof(IOpenFileService));
+            containerRegistry.RegisterManySingleton<OpenImageFileService>(typeof(IOpenImageFileService));
+            containerRegistry.RegisterManySingleton<OpenOptionFileService>(typeof(IOpenOptionFileService));
             containerRegistry.RegisterDialog<VerticalDistributionDialogView, VerticalDistributionDialogViewModel>();
             containerRegistry.RegisterDialog<ContoursInformationDialogView, ContoursInformationDialogViewModel>();
         }

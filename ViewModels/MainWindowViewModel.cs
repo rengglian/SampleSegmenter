@@ -6,7 +6,6 @@ using SampleSegmenter.Interfaces;
 using SampleSegmenter.Models;
 using SampleSegmenter.Options;
 using SampleSegmenter.Services;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,9 +13,13 @@ namespace SampleSegmenter.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
-        public IOpenFileService OpenFileService { get; set; }
+
+        private AllOptions _allOptions = new();
+        private string _optionName = "Options.json";
+        public IOpenImageFileService OpenImageFileService { get; set; }
+        public IOpenOptionFileService OpenOptionFileService { get; set; }
         private readonly IDialogService _dialogService;
-        private List<IImageProcessingService> _imageProcessingServices { get; set; }
+        private List<IImageProcessingService> ImageProcessingServices { get; set; }
         private IImageProcessingService _imageProcessingService;
         public IImageProcessingService ImageProcessingService 
         {
@@ -26,12 +29,16 @@ namespace SampleSegmenter.ViewModels
 
         private ImageFromFile _imageFromFile;
 
-        public MaskOptions MaskOptions { get; set; } = new();
-        public EqualizerOptions EqualizerOptions { get; set; } = new();
-        public DenoiseOptions DenoiseOptions { get; set; } = new();
-        public ThresholdOptions ThresholdOptions { get; set; } = new();
-        public ContoursOptions ContoursOptions { get; set; } = new();
-        public DilateOptions DilateOptions { get; set; } = new();
+        public string OptionName
+        {
+            get => _optionName;
+            set => SetProperty(ref _optionName, value);
+        }
+        public AllOptions AllOptions
+        {
+            get => _allOptions;
+            set => SetProperty(ref _allOptions, value);
+        }
 
         private DelegateCommand _openImageCommand;
         public DelegateCommand OpenImageCommand => _openImageCommand ??= new (OpenImageCommandHandler);
@@ -45,9 +52,17 @@ namespace SampleSegmenter.ViewModels
         private DelegateCommand<object> _setOptionsCommand;
         public DelegateCommand<object> SetOptionsCommand => _setOptionsCommand ??= new DelegateCommand<object>(SetOptionsCommandHandler);
 
-        public MainWindowViewModel(IOpenFileService openFileService, IDialogService dialogService)
+        private DelegateCommand _saveOptionsCommand;
+        public DelegateCommand SaveOptionsCommand => _saveOptionsCommand ??= new(SaveOptionsCommandHandler);
+
+        private DelegateCommand _loadOptionsCommand;
+        public DelegateCommand LoadOptionsCommand => _loadOptionsCommand ??= new(LoadOptionsCommandHandler);
+
+
+        public MainWindowViewModel(IOpenImageFileService openImageFileService, IOpenOptionFileService openOptionFileService, IDialogService dialogService)
         {
-            OpenFileService = openFileService;
+            OpenImageFileService = openImageFileService;
+            OpenOptionFileService = openOptionFileService;
             _dialogService = dialogService;
         }
 
@@ -56,21 +71,34 @@ namespace SampleSegmenter.ViewModels
 
         private void OpenImageCommandHandler()
         {
-            if ((bool)OpenFileService.OpenFile())
+            if ((bool)OpenImageFileService.OpenFile())
             {
-                _imageProcessingServices = new();
+                ImageProcessingServices = new();
 
-                _imageFromFile = new ImageFromFile(OpenFileService.FileNames[0]);
-                _imageProcessingServices.Add(new ImageProcessingService());
-                _imageProcessingServices.First().SetOrigMat(_imageFromFile.GetImageMat());
-                ImageProcessingService = _imageProcessingServices.First();
+                _imageFromFile = new ImageFromFile(OpenImageFileService.FileNames[0]);
+                ImageProcessingServices.Add(new ImageProcessingService());
+                ImageProcessingServices.First().SetOrigMat(_imageFromFile.GetImageMat());
+                ImageProcessingService = ImageProcessingServices.First();
             }
         }
 
         private void ShowVerticalDistributionCommandHandler()
-            => _dialogService.ShowVerticalDistributionDialog(ImageProcessingService.GetContoursInfo(), OpenFileService.FileNameOnly, r => { });
+            => _dialogService.ShowVerticalDistributionDialog(ImageProcessingService.GetContoursInfo(), OpenImageFileService.FileNameOnly, r => { });
 
         private void ShowHistogramCommandHandler()
-            => _dialogService.ShowContoursInformationDialog(ImageProcessingService.GetContoursInfo(), OpenFileService.FileNameOnly, r => { });
+            => _dialogService.ShowContoursInformationDialog(ImageProcessingService.GetContoursInfo(), OpenImageFileService.FileNameOnly, r => { });
+
+        private void SaveOptionsCommandHandler()
+        {
+            _ = OptionsService.SaveOptionsAsync(AllOptions, OptionName);
+        }
+
+        private void LoadOptionsCommandHandler()
+        {
+            if ((bool)OpenOptionFileService.OpenFile())
+            {
+                AllOptions = OptionsService.LoadOptionsAsync(OpenOptionFileService.FileNames[0]);
+            }
+        }
     }
 }

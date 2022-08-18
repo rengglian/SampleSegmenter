@@ -8,6 +8,7 @@ using SampleSegmenter.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
@@ -15,9 +16,14 @@ namespace SampleSegmenter.Services
 {
     public class ImageProcessingService : BindableBase, IImageProcessingService
     {
+        CancellationTokenSource source = new CancellationTokenSource();
+        CancellationToken token;
+
         private Mat _orig;
-        private Mat _denoised;
+        private Mat _resized;
         private Mat _grayscaled;
+        private Mat _denoised;
+        private Mat _cannyEdge;
         private Mat _binarized;
         private Mat _masked;
         private Mat _dilated;
@@ -25,8 +31,10 @@ namespace SampleSegmenter.Services
 
         private List<IContourInfo> _contoursInfo;
 
+        private ResizeOptions _resizeOptions;
         private EqualizerOptions _equalizerOptions;
         private DenoiseOptions _denoiseOptions;
+        private CannyEdgeOptions _cannyEdgeOptions;
         private MaskOptions _maskOptions;
         private ThresholdOptions _thresholdOptions;
         private DilateOptions _dilateOptions;
@@ -66,13 +74,17 @@ namespace SampleSegmenter.Services
 
         public ImageProcessingService()
         {
-            _denoiseOptions = new();
+            _resizeOptions = new();
             _equalizerOptions = new();
+            _denoiseOptions = new();
+            _cannyEdgeOptions = new();
             _maskOptions = new();
             _thresholdOptions = new();
             _dilateOptions = new();
             _contoursOptions = new();
             _contoursInfo = new();
+
+            token = source.Token;
         }
 
         public void SetOrigMat(Mat orig)
@@ -88,8 +100,10 @@ namespace SampleSegmenter.Services
         public void SetOptions<T>(T options)
         {
             Type optionType = options.GetType();
+            if (optionType == typeof(ResizeOptions)) { _resizeOptions = options as ResizeOptions; }
             if (optionType == typeof(EqualizerOptions)) { _equalizerOptions = options as EqualizerOptions; }
             if (optionType == typeof(DenoiseOptions)) { _denoiseOptions = options as DenoiseOptions; }
+            if (optionType == typeof(CannyEdgeOptions)) { _cannyEdgeOptions = options as CannyEdgeOptions; }
             if (optionType == typeof(MaskOptions)) { _maskOptions = options as MaskOptions; }
             if (optionType == typeof(ThresholdOptions)) { _thresholdOptions = options as ThresholdOptions; }
             if (optionType == typeof(DilateOptions)) { _dilateOptions = options as DilateOptions; }
@@ -106,14 +120,24 @@ namespace SampleSegmenter.Services
                         Image = ImageConverter.Convert(_orig.Clone());
                         break;
                     }
-                case ImageProcessingSteps.Denoised:
+                case ImageProcessingSteps.Resize:
                     {
-                        Image = ImageConverter.Convert(_denoised.Clone());
+                        Image = ImageConverter.Convert(_resized.Clone());
                         break;
                     }
                 case ImageProcessingSteps.Grayscaled:
                     {
                         Image = ImageConverter.Convert(_grayscaled.Clone());
+                        break;
+                    }
+                case ImageProcessingSteps.Denoised:
+                    {
+                        Image = ImageConverter.Convert(_denoised.Clone());
+                        break;
+                    }
+                case ImageProcessingSteps.CannyEdge:
+                    {
+                        Image = ImageConverter.Convert(_cannyEdge.Clone());
                         break;
                     }
                 case ImageProcessingSteps.Masked:
@@ -141,37 +165,65 @@ namespace SampleSegmenter.Services
 
         private void Update()
         {
+//            source.Cancel();
+
             Task.Factory.StartNew(() =>
             {
-                Denoise();
+                Resize();
                 Grayscale();
+                Denoise();
+                CannyEdge();
                 Mask();
                 Threshold();
                 Dilate();
                 Contours();
                 UpdateImage(SelectedImageProcessingStep);
-            });
+            }, token);
         }
 
-        private void Denoise()
+        private void Resize()
         {
-            Information = "Denoise Image";
-            _denoised = _orig.Clone();
-            Cv2.FastNlMeansDenoisingColored(
-                _orig,
-                _denoised,
-                _denoiseOptions.H,
-                _denoiseOptions.HColor,
-                _denoiseOptions.TemplateWindowSize,
-                _denoiseOptions.TemplateWindowSize);
+            Information = "Resized Image";
+            _resized = _orig.Clone();
+
+            var width = _resized.Width * _resizeOptions.ScalePercentage / 100;
+            var height  = _resized.Height * _resizeOptions.ScalePercentage / 100;
+            Size dim = new Size(width, height);
+
+            Cv2.Resize(_orig, _resized, dim);
         }
 
         private void Grayscale()
         {
             Information = "Grayscale Image";
-            _grayscaled = _denoised.Clone();
-            Cv2.CvtColor(_denoised, _grayscaled, ColorConversionCodes.BGR2GRAY);
+            _grayscaled = _resized.Clone();
+            Cv2.CvtColor(_resized, _grayscaled, ColorConversionCodes.BGR2GRAY);
             if (_equalizerOptions.IsEnabled) Cv2.EqualizeHist(_grayscaled, _grayscaled);
+        }
+
+        private void Denoise()
+        {
+            Information = "Denoise Image";
+            _denoised = _grayscaled.Clone();
+            Cv2.FastNlMeansDenoising(
+                _grayscaled,
+                _denoised,
+                _denoiseOptions.H,
+                _denoiseOptions.TemplateWindowSize,
+                _denoiseOptions.TemplateWindowSize);
+        }
+
+        private void CannyEdge()
+        {
+            Information = "Canny Edge";
+            _cannyEdge = _denoised.Clone();
+            Cv2.Canny(
+                _denoised,
+                _cannyEdge,
+                100,
+                200,
+                3,
+                false);
         }
 
         private void Mask()
@@ -216,19 +268,18 @@ namespace SampleSegmenter.Services
 
             if (_dilateOptions.IsEnabled)
             {
-                var struct_element = Cv2.GetStructuringElement(
-                    MorphShapes.Cross,
-                    new Size(2 * _dilateOptions.Size + 1, 2 * _dilateOptions.Size + 1),
-                    new Point(_dilateOptions.Size, _dilateOptions.Size));
-
-                Cv2.Dilate(_binarized, _dilated, struct_element, iterations: _dilateOptions.Iterations);
+                var kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new Size(_dilateOptions.Size, _dilateOptions.Size));
+                Cv2.MorphologyEx(_binarized, _dilated, MorphTypes.Close, kernel);
+                Cv2.MorphologyEx(_dilated, _dilated, MorphTypes.Open, kernel);
+                
+                //Cv2.Dilate(_binarized, _dilated, struct_element, iterations: _dilateOptions.Iterations);
             }
         }
 
         private void Contours()
         {
             Information = "Find Contours";
-            _result = _orig.Clone();
+            _result = _resized.Clone();
             Cv2.FindContours(_dilated, out Point[][] contours, out HierarchyIndex[] hierarchyIndexes, RetrievalModes.Tree, ContourApproximationModes.ApproxNone);
 
             _contoursInfo.Clear();
@@ -367,10 +418,10 @@ namespace SampleSegmenter.Services
                         ContourName = $"{counter}",
                         CentroidX = x,
                         CentroidY = y,
-                        CircleX = center.X - _orig.Width / 2.0f,
-                        CircleY = center.Y - _orig.Height / 2.0f,
+                        CircleX = center.X - _resized.Width / 2.0f,
+                        CircleY = center.Y - _resized.Height / 2.0f,
                         CircleRadius = radius,
-                        DistanceToCenter = new Point2f(center.X - _orig.Width / 2.0f, center.Y - _orig.Height / 2.0f).DistanceTo(new Point2f(0.0f, 0.0f)),
+                        DistanceToCenter = new Point2f(center.X - _resized.Width / 2.0f, center.Y - _resized.Height / 2.0f).DistanceTo(new Point2f(0.0f, 0.0f)),
                         ContourArea = area,
                         ContourCircumference = circumference,
                         HistogramValues = tmpHistValues

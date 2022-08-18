@@ -5,7 +5,7 @@ using System.IO;
 
 namespace SampleSegmenter.Services
 {
-    public class OpenFileService : BindableBase, IOpenFileService
+    public class OpenImageFileService : BindableBase, IOpenImageFileService
     {
         readonly OpenFileDialog _openFileDialog = new();
         string[] _selectedFileNames;

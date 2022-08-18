@@ -3,8 +3,10 @@
     public enum ImageProcessingSteps
     {
         Orignal,
-        Denoised,
+        Resize,
         Grayscaled,
+        Denoised,
+        CannyEdge,
         Masked,
         Binarized,
         Dilated,
